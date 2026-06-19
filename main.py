@@ -11,7 +11,7 @@ app = Flask(__name__)
 API_TOKEN = '8895527275:AAEh3hBBR6IQGc9APTcdK8RZqPaZNXvCfnM'
 bot = telebot.TeleBot(API_TOKEN)
 
-# 🛠️ إعدادات القيادة العليا والتحكم (تم التحديث للآيدي الخاص بك بنجاح)
+# 🛠️ إعدادات القيادة العليا والتحكم
 ADMIN_CHAT_ID = '1609075265' 
 WITHDRAW_OPEN = False       
 
@@ -21,6 +21,9 @@ ADMIN_WALLETS = {
     'TRC20': 'TFF2ehjWuWTA1k3rrJVbaz2tbUhAZDobni',
     'TON': 'UQAO-l2K9qQtbHzLGiWyyGRtsaGBh0t82qHaa2GDMqq49Lp8'
 }
+
+# 🔗 تم تحديث الرابط بنجاح
+WEBAPP_URL = "https://apexwarlords-production.up.railway.app" 
 
 # 💾 قاعدة بيانات السيرفر المركزية المؤقتة
 users_db = {}
@@ -38,11 +41,6 @@ def init_user(user_id, username="محارب أسطوري"):
             'invited_by': None,
             'referrals_count': 0
         }
-
-# 🔗 سحب رابط ريلواي تلقائياً للميني أب
-PUBLIC_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
-WEBAPP_URL = f"https://{PUBLIC_DOMAIN}" if PUBLIC_DOMAIN else "https://example.com"
-
 
 # 🎮 تابع بناء وتحديث لوحة تحكم الأدمن بالأزرار التفاعلية
 def send_admin_panel(message, edit=False):
@@ -65,7 +63,6 @@ def send_admin_panel(message, edit=False):
         except Exception: pass
     else:
         bot.send_message(ADMIN_CHAT_ID, text, reply_markup=markup, parse_mode="Markdown")
-
 
 # ⚔️ أمر الدخول والترحيب باللاعبين والأدمن
 @bot.message_handler(commands=['start'])
@@ -102,8 +99,7 @@ def send_welcome(message):
     
     bot.send_message(message.chat.id, welcome_text, reply_markup=markup)
 
-
-# 🔎 معالج البحث عن آيدي لاعب خطوة بخطوة (بدون أوامر نصية)
+# 🔎 معالج البحث عن آيدي لاعب خطوة بخطوة
 def process_user_search(message):
     if str(message.from_user.id) != ADMIN_CHAT_ID:
         return
@@ -138,8 +134,7 @@ def process_user_search(message):
         markup.add(types.InlineKeyboardButton("↩️ إلغاء والعودة", callback_data="adm_panel"))
         bot.send_message(ADMIN_CHAT_ID, "❌ عذراً، هذا الآيدي غير مسجل في قاعدة بيانات السيرفر حالياً!", reply_markup=markup)
 
-
-# ⚖️ سنترال معالجة كل ضغطات الأزرار (شحن - سحب - لوحة تحكم أدمن)
+# ⚖️ سنترال معالجة كل ضغطات الأزرار
 @bot.callback_query_handler(func=lambda call: True)
 def handle_all_callbacks(call):
     if str(call.from_user.id) != ADMIN_CHAT_ID:
@@ -215,7 +210,6 @@ def handle_all_callbacks(call):
             bot.edit_message_text("❌ تم رفض طلب سحب المكافأة وإخطار المستخدم بالرفض الصارم.", chat_id=ADMIN_CHAT_ID, message_id=call.message.message_id)
             try: bot.send_message(target_user_id, "❌ نأسف، تم رفض طلب سحب المكافآت الخاص بك من قبل الإدارة لمخالفة القوانين العسكرية.")
             except Exception: pass
-
 
 # 🎨 واجهة اللعبة الاحترافية (HTML / CSS / JavaScript)
 HTML_CONTENT = """
@@ -306,7 +300,6 @@ HTML_CONTENT = """
     
     <button class="btn btn-secondary" style="background: #0c0c0e; border-color: #00d2d3; color: #00d2d3;" onclick="showInviteLink()">🔗 نسخ رابط جلب الحلفاء (+200 💎)</button>
 
-
     <div class="modal-overlay" id="deposit-modal">
         <div class="modal-content">
             <span class="modal-h" id="modal-package-title">شحن الجواهر</span>
@@ -334,7 +327,6 @@ HTML_CONTENT = """
         </div>
     </div>
 
-
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-content">
             <span class="modal-h" style="color:#2ed573;">طلب سحب المكافآت</span>
@@ -356,7 +348,6 @@ HTML_CONTENT = """
             <button class="btn btn-secondary" style="margin-top:5px; width:100%;" onclick="closeWithdrawModal()">إغلاق</button>
         </div>
     </div>
-
 
     <script>
         const tg = window.Telegram.WebApp;
