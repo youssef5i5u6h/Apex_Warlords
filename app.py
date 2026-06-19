@@ -1,85 +1,85 @@
-import os, json, telebot, threading, time
+import os, json, telebot, threading
 from flask import Flask, render_template_string, request, jsonify
 
 app = Flask(__name__)
-
-# --- الإعدادات ---
 TOKEN = "8895527275:AAEh3hBBR6IQGc9APTcdK8RZqPaZNXvCfnM"
 OWNER_ID = 1609075265
 bot = telebot.TeleBot(TOKEN)
 DATA_FILE = 'data.json'
 
-# --- العناوين ---
-WALLETS = {
-    "USDT_BEP20": "0x0aae3b8ed565178c5224296429310959536a80b6",
-    "USDT_TRC20": "TFF2ehjWuWTA1k3rrJVbaz2tbUhAZDobni",
-    "TON": "UQAO-l2K9qQtbHzLGiWyyGRtsaGBh0t82qHaa2GDMqq49Lp8"
-}
-
-# --- إدارة البيانات ---
+# --- تحميل البيانات ---
 def load_data():
-    if not os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'w') as f: json.dump({"users": {}}, f)
-        return {"users": {}}
+    if not os.path.exists(DATA_FILE): return {"users": {}}
     with open(DATA_FILE, 'r') as f: return json.load(f)
 
 def save_data(data):
     with open(DATA_FILE, 'w') as f: json.dump(data, f)
 
-# --- كود الواجهة (Frontend) بتصميم Dark Gaming ---
-HTML_TEMPLATE = """
+# --- الواجهة (HTML/CSS/JS) ---
+HTML = """
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apex Warlords</title>
     <style>
-        body { background: #0e0e15; color: #fff; font-family: sans-serif; margin: 0; padding-bottom: 80px; }
-        .header { padding: 20px; background: #1a1a2e; text-align: center; border-bottom: 2px solid #303050; }
-        .card { background: #1a1a2e; margin: 15px; padding: 15px; border-radius: 15px; border: 1px solid #4a4a80; }
-        .btn { background: linear-gradient(90deg, #6a11cb, #2575fc); border: none; padding: 12px; border-radius: 8px; color: white; width: 100%; font-weight: bold; margin-top: 10px; }
+        body { background: #0e0e15; color: white; font-family: sans-serif; margin: 0; padding-bottom: 80px; }
+        .header { padding: 20px; background: #1a1a2e; border-bottom: 2px solid #303050; display: flex; justify-content: space-between; }
+        .tab-content { display: none; padding: 15px; }
+        .tab-content.active { display: block; }
+        .card { background: #1a1a2e; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #4a4a80; }
+        .btn-buy { background: #eab308; color: black; font-weight: bold; padding: 10px; border-radius: 8px; border: none; width: 100%; }
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: #1a1a2e; display: flex; justify-content: space-around; padding: 15px 0; border-top: 2px solid #303050; }
-        .tab { color: #aaa; text-decoration: none; font-size: 14px; text-align: center; }
-        .tab.active { color: #fff; border-bottom: 2px solid #2575fc; }
-        select { width: 100%; padding: 10px; background: #111; color: #fff; border-radius: 5px; border: 1px solid #444; }
+        .nav-btn { color: #aaa; cursor: pointer; text-align: center; }
+        .nav-btn.active { color: #fff; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h2>💰 Balance: {{user.balance}} $</h2>
-        <p>Mining Power: {{user.miners * 10}} H/S</p>
+        <div>💰 Balance: <span id="bal">{{user.balance}}</span> $</div>
+        <div>Mining Power: {{user.miners * 10}} H/S</div>
     </div>
 
-    <div class="card">
-        <h3>Deposit Funds</h3>
-        <select id="cur" onchange="updateAddr()">
-            <option value="USDT_BEP20">USDT BEP20</option>
-            <option value="USDT_TRC20">USDT TRC20</option>
-            <option value="TON">TON</option>
-        </select>
-        <p id="addr" style="word-break: break-all; margin: 10px 0; color: #00d4ff;">{{wallets['USDT_BEP20']}}</p>
-        <form action="/deposit" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="id" value="{{user_id}}">
-            <input type="hidden" name="currency" id="hidden_cur" value="USDT_BEP20">
-            <input type="file" name="file" required style="width:100%; margin-bottom:10px;">
-            <button class="btn" type="submit">Submit Deposit Proof</button>
-        </form>
+    <div id="miners" class="tab-content active">
+        <div class="card">
+            <h3>PEPE Engine</h3>
+            <p>H/S: 289.3519</p>
+            <button class="btn-buy" onclick="buy('pepe')">Buy (1000$)</button>
+        </div>
+        <div class="card">
+            <h3>SHIB CORE</h3>
+            <p>H/S: 18.5185</p>
+            <button class="btn-buy" onclick="buy('shib')">Buy (100$)</button>
+        </div>
+    </div>
+
+    <div id="tasks" class="tab-content">
+        <h3>Daily Tasks</h3>
+        <div class="card">Launch @DoodlePlayBot - Reward: 0.1$</div>
+    </div>
+
+    <div id="wallet" class="tab-content">
+        <div class="card">
+            <h3>Deposit</h3>
+            <p>Address: <code>TFF2ehjWuWTA1k3rrJVbaz2tbUhAZDobni</code></p>
+            <input type="file" style="width:100%">
+            <button class="btn-buy" style="background:#2563eb; color:white; margin-top:10px;">Submit Proof</button>
+        </div>
     </div>
 
     <div class="nav-bar">
-        <a class="tab active">⛏ Miners</a>
-        <a class="tab">📋 Tasks</a>
-        <a class="tab">💳 Wallet</a>
+        <div class="nav-btn active" onclick="show('miners', this)">⛏ Miners</div>
+        <div class="nav-btn" onclick="show('tasks', this)">📋 Tasks</div>
+        <div class="nav-btn" onclick="show('wallet', this)">💳 Wallet</div>
     </div>
 
     <script>
-        const wallets = {{wallets|tojson}};
-        function updateAddr(){
-            let c = document.getElementById('cur').value;
-            document.getElementById('addr').innerText = wallets[c];
-            document.getElementById('hidden_cur').value = c;
+        function show(id, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
         }
+        function buy(item) { fetch('/buy?item='+item+'&id={{user_id}}').then(r=>location.reload()) }
     </script>
 </body>
 </html>
@@ -88,44 +88,30 @@ HTML_TEMPLATE = """
 # --- Routes ---
 @app.route('/')
 def index():
-    uid = request.args.get('id')
+    uid = request.args.get('id', '123')
     data = load_data()
-    if uid not in data['users']:
-        data['users'][uid] = {"balance": 0, "miners": 0}
+    if uid not in data['users']: data['users'][uid] = {"balance": 100, "miners": 0}
+    return render_template_string(HTML, user=data['users'][uid], user_id=uid)
+
+@app.route('/buy')
+def buy():
+    uid = request.args.get('id')
+    item = request.args.get('item')
+    data = load_data()
+    if data['users'][uid]['balance'] >= 100:
+        data['users'][uid]['balance'] -= 100
+        data['users'][uid]['miners'] += 1
         save_data(data)
-    return render_template_string(HTML_TEMPLATE, user=data['users'][uid], user_id=uid, wallets=WALLETS)
+    return "OK"
 
-@app.route('/deposit', methods=['POST'])
-def deposit():
-    uid = request.form['id']
-    currency = request.form['currency']
-    file = request.files['file']
-    
-    markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(
-        telebot.types.InlineKeyboardButton("✅ Approve", callback_data=f"app_{uid}"),
-        telebot.types.InlineKeyboardButton("❌ Reject", callback_data=f"rej_{uid}")
-    )
-    bot.send_photo(OWNER_ID, file, caption=f"Deposit Request\nUser ID: {uid}\nCurrency: {currency}", reply_markup=markup)
-    return "<h3>Success! Proof sent to Admin.</h3>"
-
-# --- البوت ---
+# --- تشغيل البوت ---
 @bot.message_handler(commands=['start'])
 def start(m):
-    uid = str(m.from_user.id)
-    url = f"https://apexwarlords-production.up.railway.app?id={uid}"
     markup = telebot.types.InlineKeyboardMarkup()
+    url = f"https://apexwarlords-production.up.railway.app?id={m.from_user.id}"
     markup.add(telebot.types.InlineKeyboardButton("Launch App 🚀", web_app=telebot.types.WebAppInfo(url=url)))
     bot.send_message(m.chat.id, "Welcome to Apex Warlords!", reply_markup=markup)
 
-@bot.callback_query_handler(func=lambda call: True)
-def callback(call):
-    if call.from_user.id != OWNER_ID: return
-    uid = call.data.split("_")[1]
-    if call.data.startswith("app_"):
-        bot.send_message(uid, "✅ Your deposit was approved!")
-        bot.edit_message_caption(call.message.caption + "\n\nStatus: APPROVED", call.message.chat.id, call.message.message_id)
-
-# --- تشغيل ---
 threading.Thread(target=lambda: bot.infinity_polling()).start()
 if __name__ == '__main__': app.run(host='0.0.0.0', port=5000)
+
