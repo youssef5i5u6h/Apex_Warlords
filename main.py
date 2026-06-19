@@ -1,13 +1,12 @@
-import os
 import telebot
 from telebot import types
 
-# ريلواي هيقرأ التوكن تلقائياً من المتغيرات السرية (Variables) باسم BOT_TOKEN
-API_TOKEN = os.environ.get('8895527275:AAEh3hBBR6IQGc9APTcdK8RZqPaZNXvCfnM')
+# التوكن الخاص بك تم وضعه هنا بنجاح 🔐
+API_TOKEN = '8895527275:AAEh3hBBR6IQGc9APTcdK8RZqPaZNXvCfnM'
 
 bot = telebot.TeleBot(API_TOKEN)
 
-# رسالة الترحيب الحماسية المخصصة باسم اللعبة الجديد
+# رسالة الترحيب الحماسية المخصصة باسم اللعبة وقناتك
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     user_name = message.from_user.first_name 
@@ -28,7 +27,7 @@ May victory and endless glory be yours, brave fighter! 🛡️✨"""
     markup = types.InlineKeyboardMarkup(row_width=1)
     btn_start = types.InlineKeyboardButton("🎮 Start Playing Now", callback_data="start_game")
     
-    # 📢 هنا تم إضافة رابط قناتك الرسمي والمظبوط
+    # رابط قناتك الرسمي والمظبوط 📢
     btn_channel = types.InlineKeyboardButton("📢 Join Official Channel", url="https://t.me/Apex_Warlords")
     
     btn_invite = types.InlineKeyboardButton("👥 Invite Friends (Earn Bonus)", callback_data="invite")
