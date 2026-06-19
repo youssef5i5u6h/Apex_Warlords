@@ -1,118 +1,131 @@
-import os, json, telebot, threading
-from flask import Flask
-from telebot import types
+import os, json, telebot, threading, time
+from flask import Flask, render_template_string, request, jsonify
 
 app = Flask(__name__)
 
-# --- SETTINGS ---
-TOKEN = "8895527275:AAEh3hBBR6IQGc9APTcdK8RZqPaZNXvCfnM" 
+# --- الإعدادات ---
+TOKEN = "8895527275:AAEh3hBBR6IQGc9APTcdK8RZqPaZNXvCfnM"
 OWNER_ID = 1609075265
-# تأكد أن البوت "أدمن" في هذه القنوات
-PAYMENT_CHANNEL = "@Apex_payment1" 
-WITHDRAW_CHANNEL = "@lil_10l"
-MAIN_CHANNEL = "@lS_3P"
-MINI_APP_URL = "https://apexwarlords-production.up.railway.app"
-
 bot = telebot.TeleBot(TOKEN)
-user_states = {} 
+DATA_FILE = 'data.json'
 
+# --- العناوين ---
+WALLETS = {
+    "USDT_BEP20": "0x0aae3b8ed565178c5224296429310959536a80b6",
+    "USDT_TRC20": "TFF2ehjWuWTA1k3rrJVbaz2tbUhAZDobni",
+    "TON": "UQAO-l2K9qQtbHzLGiWyyGRtsaGBh0t82qHaa2GDMqq49Lp8"
+}
+
+# --- إدارة البيانات ---
 def load_data():
-    if not os.path.exists('data.json'): return {"users": {}, "admins": [OWNER_ID]}
-    with open('data.json', 'r') as f: return json.load(f)
+    if not os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'w') as f: json.dump({"users": {}}, f)
+        return {"users": {}}
+    with open(DATA_FILE, 'r') as f: return json.load(f)
 
 def save_data(data):
-    with open('data.json', 'w') as f: json.dump(data, f)
+    with open(DATA_FILE, 'w') as f: json.dump(data, f)
 
-# --- KEYBOARDS ---
-def get_main_menu():
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("⛏ Go to Mining", web_app=types.WebAppInfo(url=MINI_APP_URL)))
-    markup.add(types.InlineKeyboardButton("💰 Deposit", callback_data="dep_req"),
-               types.InlineKeyboardButton("💸 Withdraw", callback_data="with_req"))
-    markup.add(types.InlineKeyboardButton("📢 Main Channel", url="https://t.me/lS_3P"))
-    return markup
+# --- كود الواجهة (Frontend) بتصميم Dark Gaming ---
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Warlords</title>
+    <style>
+        body { background: #0e0e15; color: #fff; font-family: sans-serif; margin: 0; padding-bottom: 80px; }
+        .header { padding: 20px; background: #1a1a2e; text-align: center; border-bottom: 2px solid #303050; }
+        .card { background: #1a1a2e; margin: 15px; padding: 15px; border-radius: 15px; border: 1px solid #4a4a80; }
+        .btn { background: linear-gradient(90deg, #6a11cb, #2575fc); border: none; padding: 12px; border-radius: 8px; color: white; width: 100%; font-weight: bold; margin-top: 10px; }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #1a1a2e; display: flex; justify-content: space-around; padding: 15px 0; border-top: 2px solid #303050; }
+        .tab { color: #aaa; text-decoration: none; font-size: 14px; text-align: center; }
+        .tab.active { color: #fff; border-bottom: 2px solid #2575fc; }
+        select { width: 100%; padding: 10px; background: #111; color: #fff; border-radius: 5px; border: 1px solid #444; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>💰 Balance: {{user.balance}} $</h2>
+        <p>Mining Power: {{user.miners * 10}} H/S</p>
+    </div>
 
-# --- BOT LOGIC ---
+    <div class="card">
+        <h3>Deposit Funds</h3>
+        <select id="cur" onchange="updateAddr()">
+            <option value="USDT_BEP20">USDT BEP20</option>
+            <option value="USDT_TRC20">USDT TRC20</option>
+            <option value="TON">TON</option>
+        </select>
+        <p id="addr" style="word-break: break-all; margin: 10px 0; color: #00d4ff;">{{wallets['USDT_BEP20']}}</p>
+        <form action="/deposit" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="id" value="{{user_id}}">
+            <input type="hidden" name="currency" id="hidden_cur" value="USDT_BEP20">
+            <input type="file" name="file" required style="width:100%; margin-bottom:10px;">
+            <button class="btn" type="submit">Submit Deposit Proof</button>
+        </form>
+    </div>
+
+    <div class="nav-bar">
+        <a class="tab active">⛏ Miners</a>
+        <a class="tab">📋 Tasks</a>
+        <a class="tab">💳 Wallet</a>
+    </div>
+
+    <script>
+        const wallets = {{wallets|tojson}};
+        function updateAddr(){
+            let c = document.getElementById('cur').value;
+            document.getElementById('addr').innerText = wallets[c];
+            document.getElementById('hidden_cur').value = c;
+        }
+    </script>
+</body>
+</html>
+"""
+
+# --- Routes ---
+@app.route('/')
+def index():
+    uid = request.args.get('id')
+    data = load_data()
+    if uid not in data['users']:
+        data['users'][uid] = {"balance": 0, "miners": 0}
+        save_data(data)
+    return render_template_string(HTML_TEMPLATE, user=data['users'][uid], user_id=uid, wallets=WALLETS)
+
+@app.route('/deposit', methods=['POST'])
+def deposit():
+    uid = request.form['id']
+    currency = request.form['currency']
+    file = request.files['file']
+    
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(
+        telebot.types.InlineKeyboardButton("✅ Approve", callback_data=f"app_{uid}"),
+        telebot.types.InlineKeyboardButton("❌ Reject", callback_data=f"rej_{uid}")
+    )
+    bot.send_photo(OWNER_ID, file, caption=f"Deposit Request\nUser ID: {uid}\nCurrency: {currency}", reply_markup=markup)
+    return "<h3>Success! Proof sent to Admin.</h3>"
+
+# --- البوت ---
 @bot.message_handler(commands=['start'])
 def start(m):
     uid = str(m.from_user.id)
-    data = load_data()
-    if uid not in data["users"]: 
-        data["users"][uid] = {"name": m.from_user.first_name}
-        save_data(data)
-    bot.send_message(m.chat.id, f"Welcome {m.from_user.first_name}! Choose an option:", reply_markup=get_main_menu())
+    url = f"https://apexwarlords-production.up.railway.app?id={uid}"
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(telebot.types.InlineKeyboardButton("Launch App 🚀", web_app=telebot.types.WebAppInfo(url=url)))
+    bot.send_message(m.chat.id, "Welcome to Apex Warlords!", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
-    uid = call.from_user.id
-    
-    # طلبات المستخدم
-    if call.data == "dep_req":
-        user_states[uid] = "waiting_dep"
-        bot.answer_callback_query(call.id, "Please send your payment screenshot.")
-    
-    elif call.data == "with_req":
-        user_states[uid] = "waiting_with"
-        bot.answer_callback_query(call.id, "Please enter the amount.")
+    if call.from_user.id != OWNER_ID: return
+    uid = call.data.split("_")[1]
+    if call.data.startswith("app_"):
+        bot.send_message(uid, "✅ Your deposit was approved!")
+        bot.edit_message_caption(call.message.caption + "\n\nStatus: APPROVED", call.message.chat.id, call.message.message_id)
 
-    # قرارات الأدمن (Approve / Reject)
-    elif call.data.startswith("app_dep_"):
-        target_uid = call.data.split("_")[2]
-        bot.send_message(target_uid, "✅ Your deposit has been approved!")
-        bot.edit_message_text(call.message.text + "\n\nStatus: APPROVED", call.message.chat.id, call.message.message_id)
-    
-    elif call.data.startswith("rej_dep_"):
-        target_uid = call.data.split("_")[2]
-        bot.send_message(target_uid, "❌ Your deposit has been rejected.")
-        bot.edit_message_text(call.message.text + "\n\nStatus: REJECTED", call.message.chat.id, call.message.message_id)
-
-    elif call.data.startswith("app_with_"):
-        target_uid = call.data.split("_")[2]
-        bot.send_message(target_uid, "✅ Your withdrawal has been sent!")
-        bot.edit_message_text(call.message.text + "\n\nStatus: SENT", call.message.chat.id, call.message.message_id)
-
-@bot.message_handler(content_types=['photo', 'text'])
-def handle_input(m):
-    uid = m.from_user.id
-    state = user_states.get(uid)
-    
-    if state == "waiting_dep" and m.photo:
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("✅ Approve", callback_data=f"app_dep_{uid}"),
-                   types.InlineKeyboardButton("❌ Reject", callback_data=f"rej_dep_{uid}"))
-        bot.send_photo(PAYMENT_CHANNEL, m.photo[-1].file_id, caption=f"New Deposit Request\nUser: {m.from_user.first_name} ({uid})", reply_markup=markup)
-        bot.reply_to(m, "✅ Proof sent to admin!")
-        user_states[uid] = None
-        
-    elif state == "waiting_with" and m.text:
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("✅ Approve", callback_data=f"app_with_{uid}"),
-                   types.InlineKeyboardButton("❌ Reject", callback_data=f"rej_with_{uid}"))
-        bot.send_message(WITHDRAW_CHANNEL, f"New Withdraw Request\nUser: {m.from_user.first_name} ({uid})\nAmount: {m.text}", reply_markup=markup)
-        bot.reply_to(m, "✅ Request sent to admin!")
-        user_states[uid] = None
-
-# Admin Commands
-@bot.message_handler(commands=['stats'])
-def stats(m):
-    if m.from_user.id != OWNER_ID: return
-    bot.reply_to(m, f"📊 Total Users: {len(load_data()['users'])}")
-
-@bot.message_handler(commands=['broadcast'])
-def broadcast(m):
-    if m.from_user.id != OWNER_ID: return
-    try:
-        msg = m.text.split(maxsplit=1)[1]
-        for uid in load_data()["users"]:
-            try: bot.send_message(uid, msg)
-            except: pass
-        bot.reply_to(m, "✅ Done.")
-    except: bot.reply_to(m, "Use: /broadcast [msg]")
-
+# --- تشغيل ---
 threading.Thread(target=lambda: bot.infinity_polling()).start()
-
-@app.route('/')
-def home(): return "Bot Active"
-
 if __name__ == '__main__': app.run(host='0.0.0.0', port=5000)
-
