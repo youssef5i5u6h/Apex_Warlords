@@ -13,7 +13,7 @@ OWNER_ID = 1609075265
 bot = telebot.TeleBot(TOKEN)
 DATA_FILE = 'data.json'
 
-# 📢 تم ربط قنواتك الرسمية هنا بنجاح
+# قنواتك الرسمية الحالية
 PAYMENT_CHANNEL_ID = "@Apex_payment1"     # قناة إشعارات الإيداع
 WITHDRAWAL_CHANNEL_ID = "@lil_10l"       # قناة إشعارات السحب
 NEWS_CHANNEL_LINK = "https://t.me/lS_3P"   # قناة أخبار البوت الكبيرة
@@ -50,7 +50,9 @@ def save_data(data):
 def update_mining(user):
     now = time.time()
     last = user.get("last_calc", now)
-    total_speed = 0.0
+    
+    # ⚡ تم إضافة سرعة أساسية مجانية 0.01 عشان العداد يشتغل علطول للمبتدئين
+    total_speed = 0.0100 
     
     if "miners" in user and isinstance(user["miners"], dict):
         for m_id, count in user["miners"].items():
@@ -72,57 +74,59 @@ HTML_TEMPLATE = """
     <title>Apex Warlords</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: linear-gradient(180deg, #09070f 0%, #120e24 100%); color: #ffffff; margin: 0; padding-bottom: 90px; overflow-x: hidden; }
+        body { background: #0b0e14; color: #ffffff; margin: 0; padding-bottom: 90px; overflow-x: hidden; }
         
-        .top-bar { display: flex; flex-direction: column; align-items: center; padding: 15px; background: rgba(26, 21, 46, 0.7); border-bottom: 2px solid #2e2454; backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; }
-        .logo-area { font-size: 22px; font-weight: 900; color: #00d4ff; text-shadow: 0 0 10px rgba(0, 212, 255, 0.5); letter-spacing: 1px; margin-bottom: 10px; }
-        .stats-row { display: flex; width: 100%; justify-content: space-between; gap: 10px; }
-        .stat-box { flex: 1; background: #161233; border: 1px solid #3d306d; border-radius: 12px; padding: 10px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: bold; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
-        .stat-box.cash { color: #22c55e; }
-        .stat-box.gems { color: #00d4ff; }
+        .top-bar { display: flex; flex-direction: column; align-items: center; padding: 15px; background: rgba(18, 24, 38, 0.85); border-bottom: 2px solid #1e293b; backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; }
+        .logo-area { font-size: 24px; font-weight: 900; color: #00d4ff; text-shadow: 0 0 12px rgba(0, 212, 255, 0.4); letter-spacing: 1px; margin-bottom: 12px; }
+        .stats-row { display: flex; width: 100%; justify-content: space-between; gap: 12px; }
+        .stat-box { flex: 1; background: #131a26; border: 1px solid #243242; border-radius: 14px; padding: 12px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: bold; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
+        .stat-box.cash { color: #22c55e; border-color: rgba(34, 197, 94, 0.2); }
+        .stat-box.gems { color: #00d4ff; border-color: rgba(0, 212, 255, 0.2); }
 
-        .page { display: none; padding: 15px; animation: fadeIn 0.3s ease-in-out; }
+        .page { display: none; padding: 15px; animation: fadeIn 0.25s ease-in-out; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        .miner-card { background: linear-gradient(135deg, #19143a 0%, #110d28 100%); border-radius: 20px; border: 1px solid #362b6b; padding: 15px; margin-bottom: 15px; position: relative; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
-        .miner-info { display: flex; flex-direction: column; gap: 4px; }
+        .miner-card { background: linear-gradient(135deg, #131a26 0%, #0f141e 100%); border-radius: 20px; border: 1px solid #1e293b; padding: 16px; margin-bottom: 14px; position: relative; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 6px 15px rgba(0,0,0,0.3); }
+        .miner-info { display: flex; flex-direction: column; gap: 5px; }
         .miner-name { font-size: 18px; font-weight: bold; color: #fff; }
-        .miner-tier { position: absolute; top: 10px; left: 15px; font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; border: 1px solid currentColor; }
-        .miner-speed { font-size: 13px; color: #a5b4fc; background: #1e1947; padding: 4px 8px; border-radius: 6px; display: inline-block; width: fit-content; margin-top: 5px; }
-        .miner-owned { font-size: 12px; color: #fbbf24; margin-top: 2px; }
-        .btn-buy { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); color: #000; border: none; font-weight: 900; padding: 10px 20px; border-radius: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4); font-size: 14px; }
+        .miner-tier { position: absolute; top: 12px; left: 16px; font-size: 10px; font-weight: 900; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; border: 1px solid currentColor; }
+        .miner-speed { font-size: 13px; color: #38bdf8; background: #1e293b; padding: 4px 10px; border-radius: 8px; display: inline-block; width: fit-content; margin-top: 4px; font-weight: bold; }
+        .miner-owned { font-size: 12px; color: #fbbf24; margin-top: 2px; font-weight: bold; }
+        .btn-buy { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #000; border: none; font-weight: 900; padding: 12px 22px; border-radius: 14px; cursor: pointer; transition: 0.15s; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); font-size: 14px; }
         .btn-buy:active { transform: scale(0.95); }
 
-        .main-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; }
-        .reactor-core { width: 180px; height: 180px; background: radial-gradient(circle, rgba(0,212,255,0.2) 0%, rgba(0,0,0,0) 70%); position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-        .reactor-sphere { width: 110px; height: 110px; background: linear-gradient(135deg, #00d4ff 0%, #0052d4 100%); border-radius: 50%; box-shadow: 0 0 30px #00d4ff, inset 0 0 15px #fff; animation: pulse 2s infinite alternate; }
-        @keyframes pulse { from { transform: scale(1); box-shadow: 0 0 25px #00d4ff; } to { transform: scale(1.08); box-shadow: 0 0 45px #00d4ff; } }
+        .main-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px 0; }
+        .reactor-core { width: 170px; height: 170px; background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, rgba(0,0,0,0) 70%); position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; }
+        .reactor-sphere { width: 120px; height: 120px; background: linear-gradient(135deg, #00d4ff 0%, #0284c7 100%); border-radius: 50%; box-shadow: 0 0 35px rgba(0, 212, 255, 0.6), inset 0 0 15px rgba(255,255,255,0.6); animation: pulse 1.8s infinite alternate; }
+        @keyframes pulse { from { transform: scale(1); box-shadow: 0 0 25px rgba(0, 212, 255, 0.5); } to { transform: scale(1.06); box-shadow: 0 0 45px rgba(0, 212, 255, 0.8); } }
         
-        .claim-panel { background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); width: 100%; padding: 15px; border-radius: 18px; text-align: center; box-shadow: 0 5px 20px rgba(180, 83, 9, 0.5); cursor: pointer; margin-bottom: 20px; }
-        .claim-amount { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .claim-label { font-size: 12px; color: #fef3c7; font-weight: bold; }
+        .claim-panel { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); width: 100%; padding: 18px; border-radius: 20px; text-align: center; box-shadow: 0 6px 20px rgba(29, 78, 216, 0.4); cursor: pointer; margin-bottom: 25px; border: 1px solid #60a5fa; }
+        .claim-amount { font-size: 26px; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.4); font-family: monospace; }
+        .claim-label { font-size: 13px; color: #dbeafe; font-weight: bold; margin-top: 4px; }
 
-        .grid-menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; }
-        .grid-item { background: #161233; border: 1px solid #362b6b; padding: 15px; border-radius: 15px; text-align: center; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .grid-menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; width: 100%; }
+        .grid-item { background: #131a26; border: 1px solid #1e293b; padding: 16px; border-radius: 16px; text-align: center; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.2s; }
+        .grid-item:active { background: #1e293b; }
 
-        .input-select { width: 100%; padding: 12px; background: #161233; border: 1px solid #362b6b; color: #fff; border-radius: 10px; font-weight: bold; margin-bottom: 15px; }
-        .address-box { background: #090710; border: 1px dashed #4f46e5; padding: 12px; border-radius: 10px; font-size: 13px; word-break: break-all; text-align: center; color: #00d4ff; margin-bottom: 15px; font-family: monospace; }
-        .btn-action { background: linear-gradient(90deg, #4f46e5, #2563eb); color: white; border: none; padding: 14px; width: 100%; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
+        .input-select { width: 100%; padding: 14px; background: #131a26; border: 1px solid #1e293b; color: #fff; border-radius: 12px; font-weight: bold; margin-bottom: 15px; font-size: 14px; }
+        .address-box { background: #090d14; border: 1px dashed #3b82f6; padding: 14px; border-radius: 12px; font-size: 13px; word-break: break-all; text-align: center; color: #00d4ff; margin-bottom: 15px; font-family: monospace; }
+        .btn-action { background: linear-gradient(90deg, #3b82f6, #1d4ed8); color: white; border: none; padding: 15px; width: 100%; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(29, 78, 216, 0.3); font-size: 15px; }
+        .btn-action:active { transform: scale(0.98); }
         
-        .task-card { background: #161233; border: 1px solid #2e2454; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; }
-        .task-btn { background: #2563eb; border: none; color: white; padding: 8px 18px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .task-card { background: #131a26; border: 1px solid #1e293b; padding: 16px; border-radius: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .task-btn { background: #2563eb; border: none; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; }
 
-        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #120e25; border-top: 2px solid #2e2454; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.6); z-index: 999; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #7c72a1; cursor: pointer; flex: 1; font-size: 11px; font-weight: bold; transition: 0.2s; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #121824; border-top: 2px solid #1e293b; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -6px 20px rgba(0,0,0,0.5); z-index: 999; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #64748b; cursor: pointer; flex: 1; font-size: 12px; font-weight: bold; transition: 0.15s; }
         .nav-item.active { color: #00d4ff; }
-        .nav-icon { font-size: 20px; }
+        .nav-icon { font-size: 22px; }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
-        <div class="logo-area">APEX WARLORDS</div>
+        <div class="logo-area">APEX MINING</div>
         <div class="stats-row">
             <div class="stat-box cash">💵 <span id="display-cash">{{user.balance}}</span> $</div>
             <div class="stat-box gems">💎 <span>{{user.gems}}</span></div>
@@ -141,8 +145,6 @@ HTML_TEMPLATE = """
             </div>
             <div class="grid-menu">
                 <div class="grid-item" onclick="dailyReward()">🎁 مكافأة يومية</div>
-                <div class="grid-item" onclick="alert('سيتم إتاحتها قريباً!')">⚡ تعزيز السرعة 4x</div>
-                <div class="grid-item" onclick="alert('سيتم إتاحتها قريباً!')">🛡️ معارك التحالف</div>
                 <div class="grid-item" onclick="window.open('{{news_link}}')">📢 قناة الأخبار</div>
             </div>
         </div>
@@ -150,7 +152,7 @@ HTML_TEMPLATE = """
 
     <!-- 2. المعدنون -->
     <div id="page-miners" class="page">
-        <p style="text-align: center; color: #a5b4fc; font-size: 13px;">سرعة التعدين الكلية الحالية: <span id="display-speed">{{speed}}</span> H/S</p>
+        <p style="text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 15px;">سرعة التعدين الكلية الحالية: <span id="display-speed" style="color:#00d4ff; font-weight:bold;">{{speed}}</span> H/S</p>
         {% for m_id, m in miner_types.items() %}
         <div class="miner-card">
             <div class="miner-info">
@@ -168,52 +170,58 @@ HTML_TEMPLATE = """
     <div id="page-tasks" class="page">
         <div class="task-card">
             <div>
-                <div style="font-weight:bold;">قم بتشغيل بوت @DoodlePlayBot</div>
-                <div style="font-size:12px; color:#818cf8;">المكافأة: +0.01$ | +1💎</div>
+                <div style="font-weight:bold; font-size:15px;">قم بتشغيل بوت @DoodlePlayBot</div>
+                <div style="font-size:12px; color:#38bdf8; margin-top:4px;">المكافأة: +0.01$ | +1💎</div>
             </div>
             <button class="task-btn" onclick="window.open('https://t.me/DoodlePlayBot')">فتح</button>
         </div>
         <div class="task-card">
             <div>
-                <div style="font-weight:bold;">انضم لقناة التحديثات الرسمية للمشروع</div>
-                <div style="font-size:12px; color:#818cf8;">المكافأة: +0.02$ | +2💎</div>
+                <div style="font-weight:bold; font-size:15px;">انضم لقناة التحديثات الرسمية للمشروع</div>
+                <div style="font-size:12px; color:#38bdf8; margin-top:4px;">المكافأة: +0.02$ | +2💎</div>
             </div>
             <button class="task-btn" onclick="window.open('{{news_link}}')">انضمام</button>
         </div>
     </div>
 
     <!-- 4. الأصدقاء -->
-    <div id="page-friends" class="page" style="text-align:center; padding-top:20px;">
-        <h3>دعوة الأصدقاء 👥</h3>
-        <p style="color:#a5b4fc; font-size:14px;">قم بنسخ رابط الإحالة الخاص بك وتحصّل على 10% من أرباح أصدقائك!</p>
+    <div id="page-friends" class="page" style="text-align:center; padding-top:15px;">
+        <h3 style="color:#00d4ff;">دعوة الأصدقاء 👥</h3>
+        <p style="color:#94a3b8; font-size:14px; line-height:1.5;">قم بنسخ رابط الإحالة الخاص بك وتحصّل على 10% من أرباح أصدقائك فوراً عند قيامهم بالتجميع!</p>
         <div class="address-box">https://t.me/YourBotName_Bot?start={{user_id}}</div>
         <button class="btn-action" onclick="navigator.clipboard.writeText('https://t.me/YourBotName_Bot?start={{user_id}}'); alert('تم نسخ رابط الإحالة الخاص بك بنجاح!');">نسخ الرابط</button>
     </div>
 
     <!-- 5. المحفظة -->
     <div id="page-wallet" class="page">
-        <div style="background:#161233; padding:15px; border-radius:15px; border:1px solid #362b6b;">
-            <h3 style="margin-top:0; text-align:center;">إيداع الأموال وشحن الحساب</h3>
-            <label>اختر العملة الرقمية المراد الإيداع بها:</label>
+        <div style="background:#131a26; padding:18px; border-radius:20px; border:1px solid #1e293b;">
+            <h3 style="margin-top:0; text-align:center; color:#00d4ff;">شحن الحساب والإيداع</h3>
+            <p style="color:#94a3b8; font-size:13px; text-align:center; margin-bottom:20px;">قم بالتحويل للمحفظة بالأسفل ثم اكتب المبلغ واضغط تأكيد.</p>
+            
+            <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:8px;">اختر العملة الرقمية:</label>
             <select class="input-select" id="wallet-selector" onchange="changeWallet()">
                 <option value="USDT_BEP20">USDT (BEP20)</option>
                 <option value="USDT_TRC20">USDT (TRC20)</option>
                 <option value="TON">TON Coin</option>
             </select>
-            <label>عنوان المحفظة الخاص بنا للإرسال:</label>
+            
+            <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:8px;">عنوان محفظة الاستقبال الخاص بنا:</label>
             <div class="address-box" id="wallet-address">{{wallets['USDT_BEP20']}}</div>
             
-            <form action="/deposit" method="post" enctype="multipart/form-data" style="margin-top:15px;">
+            <!-- تم إلغاء خانة الإسكرين وتبديلها بمبلغ التأكيد المباشر -->
+            <form action="/deposit" method="post" style="margin-top:20px;">
                 <input type="hidden" name="user_id" value="{{user_id}}">
                 <input type="hidden" name="currency" id="hidden-currency" value="USDT_BEP20">
-                <label>ارفع لقطة شاشة لإثبات التحويل (Screenshot):</label>
-                <input type="file" name="file" required style="width:100%; margin:10px 0; color:#fff;">
-                <button type="submit" class="btn-action">تأكيد وإرسال الإثبات للأدمن</button>
+                
+                <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:8px;">المبلغ الذي قمت بتحويله ($):</label>
+                <input type="number" name="amount" class="input-select" placeholder="مثال: 10" required min="1">
+                
+                <button type="submit" class="btn-action">تأكيد وإرسال للتحقق</button>
             </form>
         </div>
     </div>
 
-    <!-- شريط التنقل السفلي -->
+    <!-- شريط التنقل السفلي الاحترافي -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchPage('main', this)"><span class="nav-icon">🏠</span>الرئيسية</div>
         <div class="nav-item" onclick="switchPage('miners', this)"><span class="nav-icon">⛏️</span>المعدنون</div>
@@ -224,9 +232,10 @@ HTML_TEMPLATE = """
 
     <script>
         let userId = "{{user_id}}";
-        let minedAmount = {{user.mined}};
-        let totalSpeed = {{speed}};
+        let minedAmount = Number("{{user.mined}}");
+        let totalSpeed = Number("{{speed}}");
 
+        // العداد يعمل لايف ومباشر وبسلاسة تامة بدون أي توقف
         setInterval(() => {
             if (totalSpeed > 0) {
                 minedAmount += (totalSpeed / 3600);
@@ -322,20 +331,34 @@ def api_claim():
         return jsonify({"status": "success"})
     return jsonify({"status": "error"})
 
+# نظام الدفع الجديد النصّي بالكامل والمعدل بناء على طلبك
 @app.route('/deposit', methods=['POST'])
 def deposit():
     uid = request.form['user_id']
     currency = request.form['currency']
-    file = request.files['file']
+    amount = request.form.get('amount', '10')
     
     markup = telebot.types.InlineKeyboardMarkup()
     markup.add(
-        telebot.types.InlineKeyboardButton("✅ قبول وإيداع 10$", callback_data=f"approve_{uid}_10"),
+        telebot.types.InlineKeyboardButton(f"✅ قبول وإيداع {amount}$", callback_data=f"approve_{uid}_{amount}"),
         telebot.types.InlineKeyboardButton("❌ رفض الطلب", callback_data=f"reject_{uid}")
     )
-    # 🔴 يرسل طلبات الإيداع لقناتك المحددة مباشرة
-    bot.send_photo(PAYMENT_CHANNEL_ID, file, caption=f"📥 **طلب إيداع جديد**\n\n👤 معرف المستخدم: `{uid}`\n🪙 العملة: `{currency}`", reply_markup=markup, parse_mode="Markdown")
-    return "<h2 style='color:green; text-align:center; font-family:sans-serif; margin-top:50px; background:#111; padding:20px;'>✅ تم إرسال إثباتك بنجاح للأدمن، سيتم تحديث رصيدك فور المراجعة!</h2>"
+    
+    # يرسل رسالة نصية واضحة في القناة للأدمن بدون صور وسكرينات
+    text = f"📥 **طلب إيداع جديد (تأكيد يدوي)**\n\n👤 معرف المستخدم: `{uid}`\n🪙 العملة المستخدمة: `{currency}`\n💰 المبلغ المذكور: `{amount}$`"
+    bot.send_message(PAYMENT_CHANNEL_ID, text, reply_markup=markup, parse_mode="Markdown")
+    
+    # صفحة "قيد المراجعة" الاحترافية المتناسقة مع الألوان
+    return """
+    <body style="background:#0b0e14; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
+        <div style="background:#131a26; max-width:400px; margin:0 auto; padding:30px; border-radius:20px; border:1px solid #1e293b; box-shadow:0 4px 15px rgba(0,0,0,0.4);">
+            <h2 style="color:#fbbf24; margin-bottom:15px;">⏳ انتظر... طلبك قيد المراجعة</h2>
+            <p style="color:#94a3b8; line-height:1.6; font-size:15px;">لقد تم إرسال معلومات التحويل الخاصة بك إلى الأدمن بنجاح. سيتم مراجعة المعاملة وإضافة الرصيد إلى حسابك تلقائياً خلال دقائق.</p>
+            <br>
+            <a href="javascript:history.back()" style="display:inline-block; background:#2563eb; color:#fff; text-decoration:none; padding:12px 25px; border-radius:10px; font-weight:bold; font-size:14px;">العودة للتطبيق</a>
+        </div>
+    </body>
+    """
 
 # --- كود تحكم البوت والقبول التلقائي ---
 @bot.message_handler(commands=['start'])
@@ -358,21 +381,21 @@ def handle_admin_buttons(call):
 
     if action == "approve":
         amount = float(parts[2])
-        data['users'][uid]['balance'] += amount
+        data['users'][uid]['balance'] = round(data['users'][uid]['balance'] + amount, 4)
         save_data(data)
         
-        # إرسال رسالة نجاح للمستخدم
-        bot.send_message(uid, f"🎉 تهانينا! تمت الموافقة على إيداعك وتمت إضافة **{amount}$** إلى حسابك.")
+        # إرسال إشعار فوري للمستخدم في الخاص بتاعه
+        bot.send_message(uid, f"🎉 تهانينا! تمت الموافقة على إيداعك وتمت إضافة **{amount}$** إلى رصيدك الكاش بنجاح.")
         
-        # 🟢 تحديث الرسالة في قناة الإيداع وتوثيقها في قناة السحوبات/العمليات
-        bot.edit_message_caption(call.message.caption + "\n\n🟢 **الحالة: تم قبول الإيداع بنجاح**", call.message.chat.id, call.message.message_id)
-        bot.send_message(WITHDRAWAL_CHANNEL_ID, f"✅ **عملية ناجحة**\n\n👤 المستخدم: `{uid}`\n💰 تم شحن رصيده بـ: `{amount}$` بنجاح.")
+        # تحديث الرسالة وتوثيقها في قناة السحوبات/العمليات الناجحة
+        bot.edit_message_text(call.message.text + f"\n\n🟢 **الحالة: تم قبول الإيداع وإضافة {amount}$**", call.message.chat.id, call.message.message_id)
+        bot.send_message(WITHDRAWAL_CHANNEL_ID, f"✅ **عملية شحن ناجحة**\n\n👤 المستخدم: `{uid}`\n💰 القيمة المضافة: `{amount}$` بنجاح.")
         
     elif action == "reject":
-        bot.send_message(uid, "❌ تم رفض طلب الإيداع الخاص بك، يرجى التواصل مع الدعم الفني وتأكيد التحويل.")
-        bot.edit_message_caption(call.message.caption + "\n\n🔴 **الحالة: تم رفض هذا الإيداع**", call.message.chat.id, call.message.message_id)
+        bot.send_message(uid, "❌ تم رفض طلب الإيداع الخاص بك من قِبل الإدارة، يرجى مراجعة الدعم وتأكيد بيانات التحويل.")
+        bot.edit_message_text(call.message.text + "\n\n🔴 **الحالة: تم رفض الطلب**", call.message.chat.id, call.message.message_id)
 
-# تشغيل البوت في مسار منفصل لمنع تجميد خادم الفلاسك
+# تشغيل البوت في خلفية السيرفر لمنع تجميد خادم الفلاسك
 threading.Thread(target=lambda: bot.infinity_polling()).start()
 
 if __name__ == '__main__':
