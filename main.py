@@ -3,7 +3,7 @@ import telebot
 from telebot import types
 
 # ريلواي هيقرأ التوكن تلقائياً من المتغيرات السرية (Variables) باسم BOT_TOKEN
-API_TOKEN = os.environ.get('BOT_TOKEN')
+API_TOKEN = os.environ.get('8895527275:AAEh3hBBR6IQGc9APTcdK8RZqPaZNXvCfnM')
 
 bot = telebot.TeleBot(API_TOKEN)
 
