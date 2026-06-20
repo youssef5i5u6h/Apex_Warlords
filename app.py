@@ -13,10 +13,9 @@ OWNER_ID = 1609075265
 bot = telebot.TeleBot(TOKEN)
 DATA_FILE = 'data.json'
 
-# قنواتك الرسمية
-PAYMENT_CHANNEL_ID = "@Apex_payment1"     # قناة إشعارات الإيداع
-WITHDRAWAL_CHANNEL_ID = "@lil_10l"       # قناة إشعارات السحب
-NEWS_CHANNEL_LINK = "https://t.me/lS_3P"   # قناة أخبار البوت الكبيرة
+PAYMENT_CHANNEL_ID = "@Apex_payment1"     
+WITHDRAWAL_CHANNEL_ID = "@lil_10l"       
+NEWS_CHANNEL_LINK = "https://t.me/lS_3P"   
 
 WALLETS = {
     "USDT_BEP20": "0x0aae3b8ed565178c5224296429310959536a80b6",
@@ -37,7 +36,6 @@ MINER_TYPES = {
     "mtonga": {"name": "MTONGA Reactor", "cost": 5000.0, "speed": 777.0000, "tier": "LEGENDARY", "color": "#ef4444"}
 }
 
-# --- إدارة قاعدة البيانات وجدولة الأرباح تلقائياً ---
 def load_data():
     if not os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'w') as f: json.dump({"users": {}}, f)
@@ -50,76 +48,92 @@ def save_data(data):
 def update_mining(user):
     now = time.time()
     last = user.get("last_calc", now)
-    
     total_speed = 0.0100 
-    
     if "miners" in user and isinstance(user["miners"], dict):
         for m_id, count in user["miners"].items():
             if m_id in MINER_TYPES:
                 total_speed += MINER_TYPES[m_id]["speed"] * count
-    
     elapsed = now - last
     user["mined"] = user.get("mined", 0.0) + (total_speed * (elapsed / 3600.0))
     user["last_calc"] = now
     return total_speed
 
-# --- تصميم الواجهة الاحترافية (HTML/CSS/JS) ---
+# --- الواجهة الفخمة والحديثة بالكامل ---
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Apex Mining</title>
+    <title>Apex Mining Premium</title>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #0b0e14; color: #ffffff; margin: 0; padding-bottom: 90px; overflow-x: hidden; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #05070f; color: #f8fafc; margin: 0; padding-bottom: 110px; overflow-x: hidden; background-image: radial-gradient(circle at 50% 0%, #111827 0%, #05070f 70%); }
         
-        .top-bar { display: flex; flex-direction: column; align-items: center; padding: 15px; background: rgba(18, 24, 38, 0.85); border-bottom: 2px solid #1e293b; backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; }
-        .logo-area { font-size: 24px; font-weight: 900; color: #00d4ff; text-shadow: 0 0 12px rgba(0, 212, 255, 0.4); letter-spacing: 1px; margin-bottom: 12px; }
-        .stats-row { display: flex; width: 100%; justify-content: space-between; gap: 12px; }
-        .stat-box { flex: 1; background: #131a26; border: 1px solid #243242; border-radius: 14px; padding: 12px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: bold; box-shadow: inset 0 0 8px rgba(0,0,0,0.3); }
-        .stat-box.cash { color: #22c55e; border-color: rgba(34, 197, 94, 0.2); }
-        .stat-box.gems { color: #00d4ff; border-color: rgba(0, 212, 255, 0.2); }
+        /* الهيدر العلوي الفخم */
+        .top-bar { display: flex; flex-direction: column; align-items: center; padding: 18px 15px; background: rgba(10, 15, 30, 0.7); border-bottom: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 1000; }
+        .logo-area { font-size: 26px; font-weight: 900; background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; text-shadow: 0 0 20px rgba(0, 242, 254, 0.3); margin-bottom: 15px; }
+        .stats-row { display: flex; width: 100%; justify-content: space-between; gap: 14px; }
+        .stat-box { flex: 1; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 800; box-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: 0.3s; }
+        .stat-box.cash { color: #10b981; border-color: rgba(16, 185, 129, 0.25); background: linear-gradient(180deg, rgba(16,185,129,0.05) 0%, rgba(0,0,0,0) 100%); }
+        .stat-box.gems { color: #00f2fe; border-color: rgba(0, 242, 254, 0.25); background: linear-gradient(180deg, rgba(0,242,254,0.05) 0%, rgba(0,0,0,0) 100%); }
 
-        .page { display: none; padding: 15px; animation: fadeIn 0.25s ease-in-out; }
+        .page { display: none; padding: 20px 15px; animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-        .miner-card { background: linear-gradient(135deg, #131a26 0%, #0f141e 100%); border-radius: 20px; border: 1px solid #1e293b; padding: 16px; margin-bottom: 14px; position: relative; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 6px 15px rgba(0,0,0,0.3); }
-        .miner-info { display: flex; flex-direction: column; gap: 5px; }
-        .miner-name { font-size: 18px; font-weight: bold; color: #fff; }
-        .miner-tier { position: absolute; top: 12px; left: 16px; font-size: 10px; font-weight: 900; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; border: 1px solid currentColor; }
-        .miner-speed { font-size: 13px; color: #38bdf8; background: #1e293b; padding: 4px 10px; border-radius: 8px; display: inline-block; width: fit-content; margin-top: 4px; font-weight: bold; }
-        .miner-owned { font-size: 12px; color: #fbbf24; margin-top: 2px; font-weight: bold; }
-        .btn-buy { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #000; border: none; font-weight: 900; padding: 12px 22px; border-radius: 14px; cursor: pointer; transition: 0.15s; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); font-size: 14px; }
-        .btn-buy:active { transform: scale(0.95); }
+        /* كروت المعدنين الأنيقة */
+        .miner-card { background: linear-gradient(145deg, rgba(20, 28, 47, 0.9) 0%, rgba(11, 16, 28, 0.9) 100%); border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); padding: 18px; margin-bottom: 16px; position: relative; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.4); overflow: hidden; transition: 0.2s; }
+        .miner-card:active { transform: scale(0.98); border-color: rgba(255,255,255,0.15); }
+        .miner-info { display: flex; flex-direction: column; gap: 6px; }
+        .miner-name { font-size: 19px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+        .miner-tier { position: absolute; top: 14px; left: 18px; font-size: 9px; font-weight: 900; padding: 4px 10px; border-radius: 30px; letter-spacing: 1px; background: rgba(255,255,255,0.05); }
+        .miner-speed { font-size: 12px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 5px 12px; border-radius: 10px; display: inline-block; width: fit-content; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.15); }
+        .miner-owned { font-size: 13px; color: #f59e0b; font-weight: 700; margin-top: 2px; }
+        .btn-buy { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #05070f; border: none; font-weight: 900; padding: 14px 24px; border-radius: 16px; cursor: pointer; box-shadow: 0 6px 20px rgba(217, 119, 6, 0.3); font-size: 14px; transition: 0.2s; }
+        .btn-buy:active { transform: scale(0.92); box-shadow: none; }
 
-        .main-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px 0; }
-        .reactor-core { width: 170px; height: 170px; background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, rgba(0,0,0,0) 70%); position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; }
-        .reactor-sphere { width: 120px; height: 120px; background: linear-gradient(135deg, #00d4ff 0%, #0284c7 100%); border-radius: 50%; box-shadow: 0 0 35px rgba(0, 212, 255, 0.6), inset 0 0 15px rgba(255,255,255,0.6); animation: pulse 1.8s infinite alternate; }
-        @keyframes pulse { from { transform: scale(1); box-shadow: 0 0 25px rgba(0, 212, 255, 0.5); } to { transform: scale(1.06); box-shadow: 0 0 45px rgba(0, 212, 255, 0.8); } }
+        /* الكور النيوني المركزي المشع */
+        .main-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .reactor-core { width: 200px; height: 200px; position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; }
+        .reactor-sphere { width: 130px; height: 130px; background: radial-gradient(circle, #00f2fe 0%, #1d4ed8 100%); border-radius: 50%; box-shadow: 0 0 50px rgba(0, 242, 254, 0.6), inset 0 0 20px rgba(255,255,255,0.6); animation: pulse 2s infinite alternate cubic-bezier(0.4, 0, 0.6, 1); z-index: 2; }
+        .reactor-outer-ring { position: absolute; width: 170px; height: 170px; border: 2px dashed rgba(0, 242, 254, 0.3); border-radius: 50%; animation: rotateRing 8s linear infinite; }
+        @keyframes pulse { from { transform: scale(1); box-shadow: 0 0 35px rgba(0, 242, 254, 0.5); } to { transform: scale(1.08); box-shadow: 0 0 60px rgba(0, 242, 254, 0.9); } }
+        @keyframes rotateRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
-        .claim-panel { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); width: 100%; padding: 18px; border-radius: 20px; text-align: center; box-shadow: 0 6px 20px rgba(29, 78, 216, 0.4); cursor: pointer; margin-bottom: 25px; border: 1px solid #60a5fa; }
-        .claim-amount { font-size: 26px; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.4); font-family: monospace; }
-        .claim-label { font-size: 13px; color: #dbeafe; font-weight: bold; margin-top: 4px; }
+        /* بانل التجميع الفاخر */
+        .claim-panel { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); width: 100%; padding: 22px; border-radius: 24px; text-align: center; box-shadow: 0 8px 30px rgba(29, 78, 216, 0.4); cursor: pointer; margin-bottom: 25px; border: 1px solid #3b82f6; transition: 0.2s; }
+        .claim-panel:active { transform: scale(0.97); box-shadow: 0 4px 15px rgba(29, 78, 216, 0.2); }
+        .claim-amount { font-size: 32px; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.3); font-family: 'Courier New', Courier, monospace; letter-spacing: 0.5px; }
+        .claim-label { font-size: 14px; color: #93c5fd; font-weight: 700; margin-top: 6px; }
 
-        .grid-menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; width: 100%; }
-        .grid-item { background: #131a26; border: 1px solid #1e293b; padding: 16px; border-radius: 16px; text-align: center; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.2s; }
-        .grid-item:active { background: #1e293b; }
+        .grid-menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; }
+        .grid-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 18px; border-radius: 18px; text-align: center; cursor: pointer; font-weight: 700; font-size: 15px; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .grid-item:active { background: rgba(255,255,255,0.08); transform: translateY(1px); }
 
-        .input-select { width: 100%; padding: 14px; background: #131a26; border: 1px solid #1e293b; color: #fff; border-radius: 12px; font-weight: bold; margin-bottom: 15px; font-size: 14px; }
-        .address-box { background: #090d14; border: 1px dashed #3b82f6; padding: 14px; border-radius: 12px; font-size: 13px; word-break: break-all; text-align: center; color: #00d4ff; margin-bottom: 15px; font-family: monospace; }
-        .btn-action { background: linear-gradient(90deg, #3b82f6, #1d4ed8); color: white; border: none; padding: 15px; width: 100%; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(29, 78, 216, 0.3); font-size: 15px; }
-        .btn-action:active { transform: scale(0.98); }
+        /* المحفظة والتبويبات المودرن */
+        .wallet-tabs { display: flex; gap: 12px; margin-bottom: 25px; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.04); }
+        .w-tab { flex: 1; padding: 14px; text-align: center; border-radius: 12px; font-weight: 800; cursor: pointer; color: #64748b; transition: 0.25s; }
+        .w-tab.active { background: linear-gradient(90deg, #2563eb, #1d4ed8); color: #fff; box-shadow: 0 4px 15px rgba(29, 78, 216, 0.3); }
+
+        .input-select { width: 100%; padding: 16px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.08); color: #fff; border-radius: 16px; font-weight: 700; margin-bottom: 18px; font-size: 15px; outline: none; transition: 0.3s; }
+        .input-select:focus { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
+        .address-box { background: #02040a; border: 1px dashed rgba(59, 130, 246, 0.4); padding: 16px; border-radius: 16px; font-size: 14px; word-break: break-all; text-align: center; color: #00f2fe; margin-bottom: 18px; font-family: monospace; font-weight: bold; }
         
-        .task-card { background: #131a26; border: 1px solid #1e293b; padding: 16px; border-radius: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .task-btn { background: #2563eb; border: none; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; }
+        .btn-action { background: linear-gradient(90deg, #2563eb, #1d4ed8); color: white; border: none; padding: 16px; width: 100%; font-weight: 800; border-radius: 16px; cursor: pointer; box-shadow: 0 6px 20px rgba(29, 78, 216, 0.3); font-size: 16px; transition: 0.2s; }
+        .btn-action:active { transform: scale(0.98); box-shadow: none; }
+        
+        /* كروت المهام */
+        .task-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 18px; border-radius: 20px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .task-btn { background: #2563eb; border: none; color: white; padding: 12px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .task-btn:active { transform: scale(0.93); }
 
-        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #121824; border-top: 2px solid #1e293b; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -6px 20px rgba(0,0,0,0.5); z-index: 999; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #64748b; cursor: pointer; flex: 1; font-size: 12px; font-weight: bold; transition: 0.15s; }
-        .nav-item.active { color: #00d4ff; }
-        .nav-icon { font-size: 22px; }
+        /* شريط التنقل السفلي العائم (Premium Floating Navbar) */
+        .nav-bar { position: fixed; bottom: 20px; left: 4%; width: 92%; background: rgba(15, 22, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-around; padding: 10px 0; border-radius: 24px; box-shadow: 0 10px 35px rgba(0,0,0,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 999; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #64748b; cursor: pointer; flex: 1; font-size: 11px; font-weight: 800; transition: 0.2s; }
+        .nav-item.active { color: #00f2fe; filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.5)); }
+        .nav-icon { font-size: 24px; margin-bottom: 2px; transition: 0.2s; }
+        .nav-item:active .nav-icon { transform: scale(0.85); }
     </style>
 </head>
 <body>
@@ -136,6 +150,7 @@ HTML_TEMPLATE = """
     <div id="page-main" class="page active">
         <div class="main-container">
             <div class="reactor-core">
+                <div class="reactor-outer-ring"></div>
                 <div class="reactor-sphere"></div>
             </div>
             <div class="claim-panel" onclick="claimMined()">
@@ -151,11 +166,11 @@ HTML_TEMPLATE = """
 
     <!-- 2. المعدنون -->
     <div id="page-miners" class="page">
-        <p style="text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 15px;">سرعة التعدين الكلية الحالية: <span id="display-speed" style="color:#00d4ff; font-weight:bold;">{{speed}}</span> H/S</p>
+        <p style="text-align: center; color: #94a3b8; font-size: 15px; margin-bottom: 20px;">سرعة التعدين الكلية الحالية: <span id="display-speed" style="color:#00f2fe; font-weight:900;">{{speed}}</span> H/S</p>
         {% for m_id, m in miner_types.items() %}
         <div class="miner-card">
             <div class="miner-info">
-                <span class="miner-tier" style="color: {{m.color}};">{{m.tier}}</span>
+                <span class="miner-tier" style="color: {{m.color}}; border: 1px solid {{m.color}};">{{m.tier}}</span>
                 <span class="miner-name">{{m.name}}</span>
                 <span class="miner-speed">⚡ {{m.speed}} H/S</span>
                 <span class="miner-owned">الكمية المملوكة: {{user.miners[m_id] or 0}}</span>
@@ -169,15 +184,29 @@ HTML_TEMPLATE = """
     <div id="page-tasks" class="page">
         <div class="task-card">
             <div>
-                <div style="font-weight:bold; font-size:15px;">قم بتشغيل بوت @DoodlePlayBot</div>
-                <div style="font-size:12px; color:#38bdf8; margin-top:4px;">المكافأة: +0.01$ | +1💎</div>
+                <div style="font-weight:800; font-size:15px;">انضم لقناة الإيداعات الرسمية لإثباتات الشحن</div>
+                <div style="font-size:13px; color:#38bdf8; margin-top:4px;">المكافأة: +0.05$ | +5💎</div>
+            </div>
+            <button class="task-btn" onclick="window.open('https://t.me/Apex_payment1')">انضمام</button>
+        </div>
+        <div class="task-card">
+            <div>
+                <div style="font-weight:800; font-size:15px;">انضم لقناة السحوبات والعمليات الناجحة للعملاء</div>
+                <div style="font-size:13px; color:#38bdf8; margin-top:4px;">المكافأة: +0.05$ | +5💎</div>
+            </div>
+            <button class="task-btn" onclick="window.open('https://t.me/lil_10l')">انضمام</button>
+        </div>
+        <div class="task-card">
+            <div>
+                <div style="font-weight:800; font-size:15px;">قم بتشغيل بوت DoodlePlay الرسمي</div>
+                <div style="font-size:13px; color:#38bdf8; margin-top:4px;">المكافأة: +0.01$ | +1💎</div>
             </div>
             <button class="task-btn" onclick="window.open('https://t.me/DoodlePlayBot')">فتح</button>
         </div>
         <div class="task-card">
             <div>
-                <div style="font-weight:bold; font-size:15px;">انضم لقناة التحديثات الرسمية للمشروع</div>
-                <div style="font-size:12px; color:#38bdf8; margin-top:4px;">المكافأة: +0.02$ | +2💎</div>
+                <div style="font-weight:800; font-size:15px;">انضم لقناة التحديثات والأخبار الكبيرة للمشروع</div>
+                <div style="font-size:13px; color:#38bdf8; margin-top:4px;">المكافأة: +0.02$ | +2💎</div>
             </div>
             <button class="task-btn" onclick="window.open('{{news_link}}')">انضمام</button>
         </div>
@@ -185,17 +214,23 @@ HTML_TEMPLATE = """
 
     <!-- 4. الأصدقاء -->
     <div id="page-friends" class="page" style="text-align:center; padding-top:15px;">
-        <h3 style="color:#00d4ff;">دعوة الأصدقاء 👥</h3>
-        <p style="color:#94a3b8; font-size:14px; line-height:1.5;">قم بنسخ رابط الإحالة الخاص بك وتحصّل على 10% من أرباح أصدقائك فوراً عند قيامهم بالتجميع!</p>
+        <h3 style="color:#00f2fe; font-size: 22px;">دعوة الأصدقاء 👥</h3>
+        <p style="color:#94a3b8; font-size:15px; line-height:1.6; margin-bottom: 20px;">قم بنسخ رابط الإحالة الخاص بك وتحصّل على 10% من أرباح أصدقائك فوراً عند قيامهم بالتجميع!</p>
         <div class="address-box">https://t.me/YourBotName_Bot?start={{user_id}}</div>
-        <button class="btn-action" onclick="navigator.clipboard.writeText('https://t.me/YourBotName_Bot?start={{user_id}}'); alert('تم نسخ رابط الإحالة الخاص بك بنجاح!');">نسخ الرابط</button>
+        <button class="btn-action" onclick="navigator.clipboard.writeText('https://t.me/YourBotName_Bot?start={{user_id}}'); alert('تم نسخ رابط الإحالة الخاص بك بنجاح!');">نسخ الرابط الفريد</button>
     </div>
 
     <!-- 5. المحفظة -->
     <div id="page-wallet" class="page">
-        <div style="background:#131a26; padding:18px; border-radius:20px; border:1px solid #1e293b;">
-            <h3 style="margin-top:0; text-align:center; color:#00d4ff;">شحن الحساب والإيداع</h3>
-            <p style="color:#94a3b8; font-size:13px; text-align:center; margin-bottom:20px;">قم بالتحويل للمحفظة بالأسفل ثم اكتب المبلغ واضغط تأكيد.</p>
+        <div class="wallet-tabs">
+            <div id="tab-deposit" class="w-tab active" onclick="toggleWalletSection('deposit')">💳 إيداع وشحن</div>
+            <div id="tab-withdraw" class="w-tab" onclick="toggleWalletSection('withdraw')">💸 سحب الأرباح</div>
+        </div>
+
+        <!-- قسم الإيداع -->
+        <div id="section-deposit" style="background: rgba(20, 28, 47, 0.4); padding:22px; border-radius:24px; border:1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);">
+            <h3 style="margin-top:0; text-align:center; color:#00f2fe;">شحن الحساب والإيداع</h3>
+            <p style="color:#94a3b8; font-size:14px; text-align:center; margin-bottom:20px;">قم بالتحويل للمحفظة بالأسفل ثم اكتب المبلغ واضغط تأكيد المعاملة.</p>
             
             <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:8px;">اختر العملة الرقمية:</label>
             <select class="input-select" id="wallet-selector" onchange="changeWallet()">
@@ -217,9 +252,34 @@ HTML_TEMPLATE = """
                 <button type="submit" class="btn-action">تأكيد وإرسال للتحقق</button>
             </form>
         </div>
+
+        <!-- قسم السحب (الحد الأدنى 10$) -->
+        <div id="section-withdraw" style="background: rgba(20, 28, 47, 0.4); padding:22px; border-radius:24px; border:1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); display:none;">
+            <h3 style="margin-top:0; text-align:center; color:#10b981;">سحب الأموال والأرباح</h3>
+            <p style="color:#94a3b8; font-size:14px; text-align:center; margin-bottom:20px;">اسحب أرباحك مباشرة إلى محفظتك الشخصية بكل سهولة وأمان.</p>
+            
+            <form action="/withdraw" method="post">
+                <input type="hidden" name="user_id" value="{{user_id}}">
+                
+                <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:8px;">اختر شبكة السحب:</label>
+                <select class="input-select" name="currency">
+                    <option value="USDT_BEP20">USDT (BEP20)</option>
+                    <option value="USDT_TRC20">USDT (TRC20)</option>
+                    <option value="TON">TON Coin</option>
+                </select>
+                
+                <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:8px;">عنوان محفظتك الشخصية للاستلام:</label>
+                <input type="text" name="user_address" class="input-select" placeholder="أدخل عنوان محفظتك هنا بدقة" required>
+                
+                <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:8px;">المبلغ المراد سحبه ($):</label>
+                <input type="number" name="amount" class="input-select" placeholder="الحد الأدنى للسحب 10$" required min="10" step="any">
+                
+                <button type="submit" class="btn-action" style="background: linear-gradient(90deg, #10b981, #059669); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);">تأكيد طلب السحب الفوري</button>
+            </form>
+        </div>
     </div>
 
-    <!-- شريط التنقل السفلي -->
+    <!-- شريط التنقل السفلي الفاخر والعائم -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchPage('main', this)"><span class="nav-icon">🏠</span>الرئيسية</div>
         <div class="nav-item" onclick="switchPage('miners', this)"><span class="nav-icon">⛏️</span>المعدنون</div>
@@ -247,6 +307,20 @@ HTML_TEMPLATE = """
             element.classList.add('active');
         }
 
+        function toggleWalletSection(type) {
+            if(type === 'deposit') {
+                document.getElementById('section-deposit').style.display = 'block';
+                document.getElementById('section-withdraw').style.display = 'none';
+                document.getElementById('tab-deposit').classList.add('active');
+                document.getElementById('tab-withdraw').classList.remove('active');
+            } else {
+                document.getElementById('section-deposit').style.display = 'none';
+                document.getElementById('section-withdraw').style.display = 'block';
+                document.getElementById('tab-deposit').classList.remove('active');
+                document.getElementById('tab-withdraw').classList.add('active');
+            }
+        }
+
         function changeWallet() {
             let selected = document.getElementById('wallet-selector').value;
             const wallets = {{wallets|tojson}};
@@ -267,12 +341,12 @@ HTML_TEMPLATE = """
             fetch(`/api/claim?id=${userId}`)
             .then(res => res.json())
             .then(data => {
-                if(data.status === "success") { alert("تم تحويل الأرباح لرصيدك الكاش بنجاح!"); location.reload(); }
+                if(data.status === "success") { alert("تم تحويل الأرباح لرصيدك الكاش بنجاح! 🔥"); location.reload(); }
             });
         }
 
         function dailyReward() {
-            alert("تم استلام المكافأة اليومية بنجاح! +0.10$ كاش.");
+            alert("تم استلام المكافأة اليومية الملكية بنجاح! +0.10$ كاش.");
         }
     </script>
 </body>
@@ -344,17 +418,77 @@ def deposit():
     bot.send_message(PAYMENT_CHANNEL_ID, text, reply_markup=markup, parse_mode="Markdown")
     
     return """
-    <body style="background:#0b0e14; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
-        <div style="background:#131a26; max-width:400px; margin:0 auto; padding:30px; border-radius:20px; border:1px solid #1e293b; box-shadow:0 4px 15px rgba(0,0,0,0.4);">
-            <h2 style="color:#fbbf24; margin-bottom:15px;">⏳ انتظر... طلبك قيد المراجعة</h2>
-            <p style="color:#94a3b8; line-height:1.6; font-size:15px;">لقد تم إرسال معلومات التحويل الخاصة بك إلى الأدمن بنجاح. سيتم مراجعة المعاملة وإضافة الرصيد إلى حسابك تلقائياً خلال دقائق.</p>
+    <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px; background-image: radial-gradient(circle at 50% 0%, #111827 0%, #05070f 70%);">
+        <div style="background: rgba(20, 28, 47, 0.6); backdrop-filter: blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid rgba(255,255,255,0.06); box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+            <h2 style="color:#f59e0b; margin-bottom:15px; font-weight:900;">⏳ معالجة الطلب الآمن</h2>
+            <p style="color:#94a3b8; line-height:1.7; font-size:15px;">لقد تم إرسال تفاصيل معاملتك المالية للتحقق اليدوي بنجاح. سيتم مراجعة طلبك وإضافة الرصيد لحسابك بشكل تلقائي وفوري فور التأكيد.</p>
             <br>
-            <a href="javascript:history.back()" style="display:inline-block; background:#2563eb; color:#fff; text-decoration:none; padding:12px 25px; border-radius:10px; font-weight:bold; font-size:14px;">العودة للتطبيق</a>
+            <a href="javascript:history.back()" style="display:inline-block; background: linear-gradient(90deg, #2563eb, #1d4ed8); color:#fff; text-decoration:none; padding:14px 30px; border-radius:12px; font-weight:bold; font-size:14px; box-shadow:0 4px 15px rgba(29,78,216,0.3);">العودة للتطبيق</a>
         </div>
     </body>
     """
 
-# --- 🚀 تم تعديل رسالة الترحيب والاسم هنا للإنجليزية بالكامل ---
+@app.route('/withdraw', methods=['POST'])
+def withdraw():
+    uid = request.form['user_id']
+    currency = request.form['currency']
+    user_address = request.form['user_address']
+    amount = float(request.form.get('amount', '10'))
+    
+    data = load_data()
+    user = data['users'].get(uid)
+    
+    if not user:
+        return "خطأ في بيانات العميل"
+        
+    if amount < 10:
+        return f"""
+        <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
+            <div style="background:rgba(20,28,47,0.6); backdrop-filter:blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #ef4444; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                <h2 style="color:#ef4444; margin-bottom:15px; font-weight:900;">❌ حماية السيرفر النشطة</h2>
+                <p style="color:#94a3b8; line-height:1.7; font-size:15px;">تم إحباط المحاولة. الحد الأدنى المسموح به لعمليات سحب الأرباح هو 10$ كاش.</p>
+                <br>
+                <a href="javascript:history.back()" style="display:inline-block; background:#ef4444; color:#fff; text-decoration:none; padding:12px 25px; border-radius:12px; font-weight:bold;">العودة للخلف</a>
+            </div>
+        </body>
+        """
+    
+    if user["balance"] < amount:
+        return f"""
+        <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
+            <div style="background:rgba(20,28,47,0.6); backdrop-filter:blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #ef4444; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                <h2 style="color:#ef4444; margin-bottom:15px; font-weight:900;">❌ رصيد غير كافٍ</h2>
+                <p style="color:#94a3b8; line-height:1.7; font-size:15px;">رصيدك الكاش المتاح حالياً ({user['balance']}$) لا يغطي القيمة المطلوبة للسحب ({amount}$).</p>
+                <br>
+                <a href="javascript:history.back()" style="display:inline-block; background:#ef4444; color:#fff; text-decoration:none; padding:12px 25px; border-radius:12px; font-weight:bold;">تعديل المبلغ والعودة</a>
+            </div>
+        </body>
+        """
+    
+    user["balance"] = round(user["balance"] - amount, 4)
+    save_data(data)
+    
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(
+        telebot.types.InlineKeyboardButton(f"✅ تم الإرسال والموافقة", callback_data=f"wapprove_{uid}_{amount}"),
+        telebot.types.InlineKeyboardButton("❌ رفض وإرجاع الرصيد", callback_data=f"wreject_{uid}_{amount}")
+    )
+    
+    text = f"💸 **طلب سحب جديد قيد التنفيذ**\n\n👤 معرف العميل: `{uid}`\n🪙 العملة والشبكة: `{currency}`\n📥 عنوان محفظة العميل: `{user_address}`\n💰 القيمة المطلوبة: `{amount}$`"
+    bot.send_message(WITHDRAWAL_CHANNEL_ID, text, reply_markup=markup, parse_mode="Markdown")
+    
+    return """
+    <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px; background-image: radial-gradient(circle at 50% 0%, #111827 0%, #05070f 70%);">
+        <div style="background: rgba(20, 28, 47, 0.6); backdrop-filter: blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #10b981; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+            <h2 style="color:#10b981; margin-bottom:15px; font-weight:900;">⏳ طلبك قيد التحويل والمعالجة</h2>
+            <p style="color:#94a3b8; line-height:1.7; font-size:15px;">تم حجز المعاملة وخصمها بنجاح وأمان. الإدارة تقوم حالياً بمراجعة طلبك وإرسال الأموال يدويًا إلى عنوان محفظتك الشخصية المرفق.</p>
+            <br>
+            <a href="javascript:history.back()" style="display:inline-block; background: linear-gradient(90deg, #10b981, #059669); color:#fff; text-decoration:none; padding:14px 30px; border-radius:12px; font-weight:bold; font-size:14px; box-shadow:0 4px 15px rgba(16,185,129,0.3);">العودة للتطبيق</a>
+        </div>
+    </body>
+    """
+
+# --- كود تحكم البوت والترحيب ---
 @bot.message_handler(commands=['start'])
 def start(m):
     uid = str(m.from_user.id)
@@ -364,7 +498,7 @@ def start(m):
     markup.add(telebot.types.InlineKeyboardButton("Launch Apex Mining 🚀", web_app=telebot.types.WebAppInfo(url=url)))
     
     welcome_text = (
-        "🎯 Welcome to **Apex Mining** bot!\n\n"
+        "🎯 Welcome to **Apex Mining Premium**!\n\n"
         "Tap the button below to launch the Mini App, purchase your mining rigs, and start generating live profits instantly."
     )
     bot.send_message(m.chat.id, welcome_text, reply_markup=markup, parse_mode="Markdown")
@@ -383,17 +517,26 @@ def handle_admin_buttons(call):
         amount = float(parts[2])
         data['users'][uid]['balance'] = round(data['users'][uid]['balance'] + amount, 4)
         save_data(data)
-        
         bot.send_message(uid, f"🎉 تهانينا! تمت الموافقة على إيداعك وتمت إضافة **{amount}$** إلى رصيدك الكاش بنجاح.")
-        
         bot.edit_message_text(call.message.text + f"\n\n🟢 **الحالة: تم قبول الإيداع وإضافة {amount}$**", call.message.chat.id, call.message.message_id)
-        bot.send_message(WITHDRAWAL_CHANNEL_ID, f"✅ **عملية شحن ناجحة**\n\n👤 المستخدم: `{uid}`\n💰 القيمة المضافة: `{amount}$` بنجاح.")
         
     elif action == "reject":
         bot.send_message(uid, "❌ تم رفض طلب الإيداع الخاص بك من قِبل الإدارة، يرجى مراجعة الدعم وتأكيد بيانات التحويل.")
         bot.edit_message_text(call.message.text + "\n\n🔴 **الحالة: تم رفض الطلب**", call.message.chat.id, call.message.message_id)
 
-# تشغيل البوت في خلفية السيرفر
+    elif action == "wapprove":
+        amount = float(parts[2])
+        bot.send_message(uid, f"✅ تم تحويل وإرسال مبلغ السحب بقيمة **{amount}$** لمحفظتك بنجاح برقم المعاملة الخاص بك!")
+        bot.edit_message_text(call.message.text + f"\n\n🟢 **الحالة: تم التحويل بنجاح للمستخدم والموافقة**", call.message.chat.id, call.message.message_id)
+        
+    elif action == "wreject":
+        amount = float(parts[2])
+        data['users'][uid]['balance'] = round(data['users'][uid]['balance'] + amount, 4)
+        save_data(data)
+        bot.send_message(uid, f"❌ تم رفض طلب السحب الخاص بك بقيمة **{amount}$** من قِبل الإدارة وتم إرجاع المبلغ كاملاً لرصيدك الكاش.")
+        bot.edit_message_text(call.message.text + f"\n\n🔴 **الحالة: تم رفض السحب وإعادة الأموال للحساب**", call.message.chat.id, call.message.message_id)
+
+# تشغيل البوت في الخلفية
 threading.Thread(target=lambda: bot.infinity_polling()).start()
 
 if __name__ == '__main__':
