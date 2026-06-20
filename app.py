@@ -217,7 +217,7 @@ HTML_TEMPLATE = """
 
         <div id="section-deposit" style="background: rgba(20, 28, 47, 0.4); padding:22px; border-radius:24px; border:1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);">
             <h3 style="margin-top:0; text-align:center; color:#00f2fe;">شحن الحساب والإيداع</h3>
-            <p style="color:#94a3b8; font-size:14px; text-align:center; margin-bottom:20px;">قم بالتحويل للمحفظة بالأسفل ثم اكتب المبلغ واضغط تأكيد المعاملة.</p>
+            <p style="color:#94a3b8; font-size:14px; text-align:center; margin-bottom:20px;">قم بالتحويل للمحفظة بالأسفل ثم اكتب البيانات المطلوبة بدقة واضغط تأكيد.</p>
             
             <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:8px;">اختر العملة الرقمية:</label>
             <select class="input-select" id="wallet-selector" onchange="changeWallet()">
@@ -235,6 +235,9 @@ HTML_TEMPLATE = """
                 
                 <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:8px;">المبلغ الذي قمت بتحويله ($):</label>
                 <input type="number" name="amount" class="input-select" placeholder="مثال: 10" required min="1">
+                
+                <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:8px;">عنوان محفظتك أو الآيدي الذي أرسلت منه المعاملة:</label>
+                <input type="text" name="sender_info" class="input-select" placeholder="اكتب الآيدي أو الـ TxID أو حسابك الذي دافعت منه" required>
                 
                 <button type="submit" class="btn-action">تأكيد وإرسال للتحقق</button>
             </form>
@@ -338,7 +341,7 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# --- Routes Logic with Safe HTML Responses to prevent Black Screens ---
+# --- Routes Logic with Safe HTML Responses ---
 @app.route('/')
 def index():
     uid = request.args.get('id', '1609075265')
@@ -392,6 +395,7 @@ def deposit():
     uid = request.form['user_id']
     currency = request.form['currency']
     amount = request.form.get('amount', '10')
+    sender_info = request.form.get('sender_info', 'Not Provided') # استلام بيانات الآيدي المُرْسِل
     
     try:
         markup = telebot.types.InlineKeyboardMarkup()
@@ -400,15 +404,21 @@ def deposit():
             telebot.types.InlineKeyboardButton("❌ Reject Request", callback_data=f"reject_{uid}")
         )
         
-        # [English Text Outside] 
-        text = f"📥 **New Deposit Request (Manual Verification)**\n\n👤 User ID: `{uid}`\n🪙 Currency: `{currency}`\n💰 Amount Added: `{amount}$`"
+        # [English Text Outside] - تم إضافة معرّف الإرسال هنا بدقة للإدارة
+        text = (
+            f"📥 **New Deposit Request (Manual Verification)**\n\n"
+            f"👤 User Bot ID: `{uid}`\n"
+            f"🆔 Sent From Wallet/ID: `{sender_info}`\n"
+            f"🪙 Currency: `{currency}`\n"
+            f"💰 Amount Added: `{amount}$`"
+        )
         bot.send_message(PAYMENT_CHANNEL_ID, text, reply_markup=markup, parse_mode="Markdown")
         
         return """
         <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
             <div style="background: rgba(20, 28, 47, 0.6); backdrop-filter: blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid rgba(255,255,255,0.06); box-shadow:0 10px 30px rgba(0,0,0,0.5);">
                 <h2 style="color:#f59e0b; margin-bottom:15px; font-weight:900;">⏳ Processing Request</h2>
-                <p style="color:#94a3b8; line-height:1.7; font-size:15px;">لقد تم إرسال تفاصيل معاملتك المالية للتحقق اليدوي بنجاح. سيتم مراجعة طلبك وإضافة الرصيد لحسابك بشكل تلقائي وفوري فور التأكيد.</p>
+                <p style="color:#94a3b8; line-height:1.7; font-size:15px;">لقد تم إرسال تفاصيل معاملتك المالية والآيدي المُرْسِل للتحقق اليدوي بنجاح. سيتم مراجعة طلبك وإضافة الرصيد فور التأكيد.</p>
                 <br>
                 <a href="javascript:history.back()" style="display:inline-block; background: linear-gradient(90deg, #2563eb, #1d4ed8); color:#fff; text-decoration:none; padding:14px 30px; border-radius:12px; font-weight:bold; font-size:14px; box-shadow:0 4px 15px rgba(29,78,216,0.3);">العودة للتطبيق</a>
             </div>
@@ -426,7 +436,6 @@ def deposit():
         </body>
         """
 
-# --- [حل مشكلة الشاشة السوداء في السحب بالكامل هنا] ---
 @app.route('/withdraw', methods=['POST'])
 def withdraw():
     uid = request.form['user_id']
@@ -496,20 +505,16 @@ def withdraw():
         </body>
         """
 
-# --- 🔐 Channels Buttons Control (All English Outside Chats) ---
+# --- 🔐 Channels Buttons Control ---
 @bot.callback_query_handler(func=lambda call: True)
 def handle_admin_buttons(call):
-    try:
-        bot.answer_callback_query(call.id)
-    except Exception:
-        pass
+    try: bot.answer_callback_query(call.id)
+    except Exception: pass
         
     if call.from_user.id != OWNER_ID:
         try:
-            # [English Text Outside]
-            bot.send_message(call.message.chat.id, f"⚠️ Security Alert: Your account is not the designated project owner!\n👤 Your Telegram ID: `{call.from_user.id}`\n\n💡 Paste this ID inside line 9 configuration to gain management rights.")
-        except Exception:
-            pass
+            bot.send_message(call.message.chat.id, f"⚠️ Security Alert: Your account is not the designated project owner!\n👤 Your Telegram ID: `{call.from_user.id}`")
+        except Exception: pass
         return
         
     parts = call.data.split("_")
@@ -528,20 +533,17 @@ def handle_admin_buttons(call):
             data['users'][uid]['balance'] = round(data['users'][uid]['balance'] + amount, 4)
             save_data(data)
             
-            # [English Text Outside]
             try: bot.send_message(uid, f"🎉 Congratulations! Your deposit request has been approved. **{amount}$** added to your balance.")
             except Exception: pass
             bot.edit_message_text(call.message.text + f"\n\n🟢 **Status: APPROVED (+{amount}$ added)**", call.message.chat.id, call.message.message_id)
             
         elif action == "reject":
-            # [English Text Outside]
             try: bot.send_message(uid, "❌ Your deposit request was rejected by management. Please check your transaction receipts.")
             except Exception: pass
             bot.edit_message_text(call.message.text + "\n\n🔴 **Status: REJECTED BY ADMIN**", call.message.chat.id, call.message.message_id)
 
         elif action == "wapprove":
             amount = float(parts[2])
-            # [English Text Outside]
             try: bot.send_message(uid, f"✅ Success! Your withdrawal request of **{amount}$** was fully approved and processed to your destination wallet address.")
             except Exception: pass
             bot.edit_message_text(call.message.text + f"\n\n🟢 **Status: SENT & CONFIRMED SUCCESSFULLY**", call.message.chat.id, call.message.message_id)
@@ -550,7 +552,6 @@ def handle_admin_buttons(call):
             amount = float(parts[2])
             data['users'][uid]['balance'] = round(data['users'][uid]['balance'] + amount, 4)
             save_data(data)
-            # [English Text Outside]
             try: bot.send_message(uid, f"❌ Attention: Your withdrawal request of **{amount}$** has been rejected. Funds returned to your available app balance safely.")
             except Exception: pass
             bot.edit_message_text(call.message.text + f"\n\n🔴 **Status: REJECTED (Funds refunded to user)**", call.message.chat.id, call.message.message_id)
@@ -574,7 +575,6 @@ def start(m):
     )
     bot.send_message(m.chat.id, welcome_text, reply_markup=markup, parse_mode="Markdown")
 
-# Background thread polling execution
 threading.Thread(target=lambda: bot.infinity_polling(timeout=10, long_polling_timeout=5)).start()
 
 if __name__ == '__main__':
