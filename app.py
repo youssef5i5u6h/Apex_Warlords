@@ -70,7 +70,7 @@ def save_data(data):
 def update_mining(user):
     now = time.time()
     last = user.get("last_calc", now)
-    total_speed = 0.0100  # السرعة الافتراضية المجانية لجميع المستخدمين
+    total_speed = 0.0100  # السرعة الافتراضية المجانية
     if "miners" in user and isinstance(user["miners"], dict):
         for m_id, count in user["miners"].items():
             if m_id in MINER_TYPES:
@@ -98,7 +98,7 @@ HTML_TEMPLATE = """
         .stats-row { display: flex; width: 100%; justify-content: space-between; gap: 14px; }
         .stat-box { flex: 1; background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; padding: 14px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 800; box-shadow: 0 8px 32px rgba(0,0,0,0.3); transition: 0.3s; }
         .stat-box.cash { color: #10b981; border-color: rgba(16, 185, 129, 0.3); text-shadow: 0 0 10px rgba(16,185,129,0.2); }
-        .stat-box.gems { color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); text-shadow: 0 0 10px rgba(56,189,248,0.2); }
+        .stat-box.speed { color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); text-shadow: 0 0 10px rgba(56,189,248,0.2); }
         
         .wallet-tab-box { flex: 1; background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; padding: 14px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 800; box-shadow: 0 8px 32px rgba(0,0,0,0.3); transition: 0.3s; cursor: pointer; }
         .wallet-tab-box.deposit-tab { color: #10b981; border-color: rgba(16, 185, 129, 0.3); }
@@ -142,6 +142,7 @@ HTML_TEMPLATE = """
         .btn-copy { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 8px; }
 
         .nav-bar { position: fixed; bottom: 20px; left: 4%; width: 92%; background: rgba(17, 24, 39, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-around; padding: 14px 0; border-radius: 26px; backdrop-filter: blur(20px); z-index: 999; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
+        .nav-bar { position: fixed; bottom: 20px; left: 4%; width: 92%; background: rgba(17, 24, 39, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-around; padding: 14px 0; border-radius: 26px; backdrop-filter: blur(20px); z-index: 999; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #6b7280; cursor: pointer; font-size: 12px; font-weight: 700; gap: 5px; transition: 0.3s; }
         .nav-item.active { color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.4); }
         
@@ -153,7 +154,7 @@ HTML_TEMPLATE = """
         <div class="logo-area">APEX MINING</div>
         <div class="stats-row">
             <div class="stat-box cash">💵 <span id="display-cash">{{user.balance}}</span> $</div>
-            <div class="stat-box gems">⚡ <span>{{speed}} /س</span></div>
+            <div class="stat-box speed">⚡ <span>{{speed}} /س</span></div>
         </div>
     </div>
 
@@ -401,11 +402,11 @@ def telegram_webhook():
 @app.route('/')
 def index():
     uid = request.args.get('id', '1609075265')
-    invite_url = f"https://t.me/Apex_mining_bot?start=ref_{uid}"
+    invite_url = f"https://t.me/Apex_Warlordsbot?start=ref_{uid}"
     with data_lock:
         data = load_data()
         if uid not in data['users']:
-            data['users'][uid] = {"balance": 0.0, "gems": 0, "mined": 0.0, "last_calc": time.time(), "miners": {}, "last_reward": 0.0, "ref_count": 0, "ref_earned": 0.0, "completed_tasks": []}
+            data['users'][uid] = {"balance": 0.0, "mined": 0.0, "last_calc": time.time(), "miners": {}, "last_reward": 0.0, "ref_count": 0, "ref_earned": 0.0, "completed_tasks": []}
         user = data['users'][uid]
         speed = update_mining(user)
         save_data(data)
@@ -551,9 +552,8 @@ def api_withdraw():
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_admin_buttons(call):
-    # 🔒 الحماية الصارمة من الاختراق أو تطفل الأدمنز:
     if call.from_user.id != OWNER_ID:
-        bot.answer_callback_query(call.id, "⚠️ عذراً يا غالي! هذه الأزرار تظهر في القناة للجميع لكن الصلاحية الفعلية محجوزة لمالك البوت الأصلي فقط ولا يمكنك اتخاذ إجراء.", show_alert=True)
+        bot.answer_callback_query(call.id, "⚠️ عذراً يا غالي! هذه الصلاحية محجوزة لمالك البوت الأصلي فقط.", show_alert=True)
         return
 
     parts = call.data.split('_')
@@ -574,7 +574,7 @@ def handle_admin_buttons(call):
             if status == "a":
                 if user:
                     user["balance"] = round(user.get("balance", 0.0) + amount, 4)
-                    status_msg = f"\n\n🟢 <b>Status: APPROVED (+{amount}$ added to balance)</b>"
+                    status_msg = f"\n\n🟢 <b>Status: APPROVED (+{amount}$ added)</b>"
                     try: bot.send_message(int(target_uid), f"🎉 تم تأكيد إيداعك بنجاح! تم إضافة {amount}$ إلى حسابك.")
                     except: pass
             else:
@@ -585,7 +585,7 @@ def handle_admin_buttons(call):
         elif action_type == "wit":
             if status == "a":
                 status_msg = f"\n\n🟢 <b>Status: APPROVED & PAID ({amount}$)</b>"
-                try: bot.send_message(int(target_uid), f"✅ تم معالجة طلب سحبك بقيمة {amount}$ بنجاح وتحويل الأموال!")
+                try: bot.send_message(int(target_uid), f"✅ تم معالجة طلب سحبك بقيمة {amount}$ بنجاح!")
                 except: pass
             else:
                 if user: user["balance"] = round(user.get("balance", 0.0) + amount, 4)
@@ -598,7 +598,7 @@ def handle_admin_buttons(call):
     try:
         updated_text = call.message.text + status_msg
         bot.edit_message_text(updated_text, chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=None, parse_mode="HTML")
-        bot.answer_callback_query(call.id, "تم تحديث المعاملة بنجاح وإشعار العميل!", show_alert=False)
+        bot.answer_callback_query(call.id, "تم تحديث المعاملة بنجاح!", show_alert=False)
     except Exception as e: print(f"Error editing text response: {e}")
 
 @bot.message_handler(commands=['start'])
@@ -608,7 +608,7 @@ def start_cmd(message):
     with data_lock:
         data = load_data()
         if uid not in data['users']:
-            data['users'][uid] = {"balance": 0.0, "gems": 0, "mined": 0.0, "last_calc": time.time(), "miners": {}, "last_reward": 0.0, "ref_count": 0, "ref_earned": 0.0, "completed_tasks": []}
+            data['users'][uid] = {"balance": 0.0, "mined": 0.0, "last_calc": time.time(), "miners": {}, "last_reward": 0.0, "ref_count": 0, "ref_earned": 0.0, "completed_tasks": []}
             if len(text_split) > 1 and text_split[1].startswith('ref_'):
                 referrer_id = text_split[1].replace('ref_', '').strip()
                 if referrer_id in data['users'] and referrer_id != uid:
