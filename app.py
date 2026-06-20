@@ -2,6 +2,7 @@ import os
 import json
 import time
 import threading
+import html  # لضمان عدم ضرب نصوص الـ HTML عند الإرسال للقنوات
 from flask import Flask, render_template_string, request, jsonify
 import telebot
 
@@ -33,7 +34,7 @@ WALLETS = {
     "TON": "UQAO-l2K9qQtbHzLGiWyyGRtsaGBh0t82qHaa2GDMqq49Lp8"
 }
 
-# 🛠️ إضافة الأيقونات والهوية البصرية لكل جهاز تعدين لتبدو كعتاد ألعاب احترافي
+# 🛠️ أيقونات وهوية بصرية لكل جهاز تعدين (ترسانة الألعاب الـ Premium)
 MINER_TYPES = {
     "doge": {"name": "DOGE Miner", "cost": 0.5, "speed": 0.0120, "tier": "STARTER", "color": "#cbd5e1", "icon": "🛰️"},
     "wif": {"name": "WIF Turbine", "cost": 2.5, "speed": 0.0463, "tier": "COMMON", "color": "#22c55e", "icon": "⚙️"},
@@ -105,11 +106,9 @@ HTML_TEMPLATE = """
         .page { display: none; padding: 20px 15px; animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .page.active { display: block; }
         
-        /* 🕹️ تصميم كارت الألعاب المطور كلياً */
         .miner-card { background: linear-gradient(145deg, rgba(26, 31, 46, 0.85) 0%, rgba(12, 16, 26, 0.95) 100%); border-radius: 24px; border: 1px solid rgba(255,255,255,0.06); padding: 16px; margin-bottom: 18px; position: relative; display: flex; align-items: center; gap: 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.5); overflow: hidden; border-left: 5px solid var(--bar-color); transition: 0.3s; }
         .miner-card:hover { transform: translateY(-3px); border-color: var(--bar-color); }
         
-        /* 🌌 صندوق العرض الهولوغرافي للجهاز داخل اللعبة */
         .miner-avatar-box { width: 70px; height: 70px; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.4) 100%); border: 2px solid var(--bar-color); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 34px; box-shadow: 0 0 15px var(--bar-color); flex-shrink: 0; position: relative; }
         .miner-avatar-box::after { content: ''; position: absolute; width: 100%; height: 100%; background: linear-gradient(0deg, transparent 50%, rgba(255,255,255,0.1) 100%); top: 0; left: 0; border-radius: 16px; }
         
@@ -162,6 +161,7 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
+    <!-- 🏠 الصفحة الرئيسية -->
     <div id="page-main" class="page active">
         <div class="main-container">
             <div class="reactor-core">
@@ -173,14 +173,13 @@ HTML_TEMPLATE = """
                 <div style="font-size: 14px; color: #93c5fd; margin-top: 6px; font-weight: 700; letter-spacing: 0.5px;">اضغط لتجميع الأرباح المتولدة 🚀</div>
             </div>
             <div class="grid-menu">
-                {% if user_id == '1609075265' %}
-                <div class="grid-item" onclick="dailyReward()" style="background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.25); color: #fbbf24;">🎁 مكافأة المالك</div>
-                {% endif %}
+                <div class="grid-item" onclick="dailyReward()" style="background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.25); color: #fbbf24;">🎁 المكافأة اليومية</div>
                 <div class="grid-item" onclick="window.open('{{news_link}}')">📢 قناة الأخبار</div>
             </div>
         </div>
     </div>
 
+    <!-- ⚡ صفحة المتجر والمعدنين -->
     <div id="page-store" class="page">
         <h3 style="margin-top: 0; margin-bottom: 22px; text-align: center; color: #38bdf8; font-weight: 900; font-size: 22px; text-shadow: 0 0 10px rgba(56,189,248,0.3);">ترقية ترسانة التعدين السحابي</h3>
         {% for m_id, m in miner_types.items() %}
@@ -199,6 +198,7 @@ HTML_TEMPLATE = """
         {% endfor %}
     </div>
 
+    <!-- 🎯 صفحة المهام والإحالات -->
     <div id="page-tasks" class="page">
         <div class="section-card">
             <h4 style="margin-top: 0; color: #38bdf8; margin-bottom: 8px; font-size: 18px;">🔗 نظام كسب الإحالات</h4>
@@ -227,6 +227,7 @@ HTML_TEMPLATE = """
         {% endfor %}
     </div>
 
+    <!-- 💼 صفحة المحفظة والسحب والإيداع المنفصلة -->
     <div id="page-wallet" class="page">
         
         <div class="stats-row" style="margin-bottom: 22px;">
@@ -234,6 +235,7 @@ HTML_TEMPLATE = """
             <div id="tab-withdraw-btn" class="wallet-tab-box withdraw-tab" onclick="switchWalletForm('withdraw')">📤 السحب (Withdraw)</div>
         </div>
 
+        <!-- 📥 قسم الإيداع المستقل -->
         <div id="section-deposit" class="section-card" style="border-color: rgba(16, 185, 129, 0.2);">
             <h4 style="margin-top: 0; color: #10b981; margin-bottom: 8px; font-size: 18px;">📥 شحن الرصيد (Deposit)</h4>
             <p style="font-size: 12px; color: #9ca3af; margin-bottom: 14px; line-height: 1.5;">قم باختيار الشبكة لإظهار عنوان المحفظة الخاص بها بدقة، ثم أرسل إثبات التحويل لتفعيل رصيدك.</p>
@@ -256,12 +258,14 @@ HTML_TEMPLATE = """
             <label>المبلغ الذي قمت بتحويله ($):</label>
             <input type="number" id="deposit-amount" placeholder="أدخل القيمة المحولة بدقة">
 
-            <label>اسم المستخدم أو هاش العملية (TxID):</label>
-            <input type="text" id="deposit-txid" placeholder="ضع هنا ما يثبت إرسالك للأموال">
+            <!-- ✨ التعديل المطلوب لاسم الخانة والـ Placeholder بالظبط هنا -->
+            <label>ادخل ال id او العنوان الذي قمت بالتحويل منو:</label>
+            <input type="text" id="deposit-txid" placeholder="أدخل هنا معرف الحساب أو عنوان محفظتك">
             
             <button class="btn-action" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); box-shadow: 0 6px 20px rgba(16,185,129,0.3);" onclick="submitDeposit()">تأكيد وإرسال إثبات الإيداع</button>
         </div>
 
+        <!-- 📤 قسم السحب المستقل -->
         <div id="section-withdraw" class="section-card" style="border-color: rgba(239, 68, 68, 0.2); display: none;">
             <h4 style="margin-top: 0; color: #ef4444; margin-bottom: 8px; font-size: 18px;">📤 طلب سحب فوري (Withdraw)</h4>
             <p style="font-size: 12px; color: #9ca3af; margin-bottom: 14px; line-height: 1.5;">اسحب أرباحك مباشرة إلى محفظتك الشخصية بكل أمان وسهولة فور بلوغ الحد الأدنى.</p>
@@ -283,6 +287,7 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
+    <!-- 📱 شريط التنقل السفلي -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchPage('main', this)">🏠 <span>الرئيسية</span></div>
         <div class="nav-item" onclick="switchPage('store', this)">⚡ <span>المتجر</span></div>
@@ -496,19 +501,25 @@ def api_complete_task():
 @app.route('/api/daily_reward')
 def api_daily_reward():
     uid = request.args.get('id')
-    if int(uid) != OWNER_ID: return jsonify({"status": "error", "message": "صلاحية مرفوضة، ميزة خاصة بالمالك."})
     now = time.time()
     with data_lock:
         data = load_data()
         user = data['users'].get(uid)
+        if not user: return jsonify({"status": "error", "message": "لم يتم العثور على حسابك"})
+        
         last_reward = user.get("last_reward", 0.0)
         if now - last_reward >= 86400:
-            user["balance"] = round(user.get("balance", 0.0) + 5.0, 4)
+            user["balance"] = round(user.get("balance", 0.0) + 0.10, 4)
             user["last_reward"] = now
             save_data(data)
-            return jsonify({"status": "success", "message": "تم استلام مكافأة المالك الكبرى بنجاح (+5$)! 🚀"})
-        return jsonify({"status": "error", "message": "لقد أخذت مكافأتك اليوم بالفعل! عد بعد مرور 24 ساعة."})
+            return jsonify({"status": "success", "message": "تم استلام المكافأة اليومية بنجاح (+0.10$)! 🚀"})
+        
+        remaining_sec = 86400 - (now - last_reward)
+        hours = int(remaining_sec // 3600)
+        minutes = int((remaining_sec % 3600) // 60)
+        return jsonify({"status": "error", "message": f"يمكنك العودة مجدداً بعد {hours} ساعة و {minutes} دقيقة."})
 
+# 🛡️ نظام حماية النصوص الآمن لمنع كراش قنوات الإرسال تماماً
 @app.route('/api/deposit')
 def api_deposit():
     uid = request.args.get('id')
@@ -516,21 +527,28 @@ def api_deposit():
     amount = request.args.get('amount')
     txid = request.args.get('txid')
     
+    # حماية النصوص من أي رموز يكتبها المستخدم لتفادي ضرب كود الـ HTML
+    safe_uid = html.escape(str(uid)) if uid else "None"
+    safe_amount = html.escape(str(amount)) if amount else "0"
+    safe_method = html.escape(str(method)) if method else "None"
+    safe_txid = html.escape(str(txid)) if txid else "None"
+    
     msg = (
-        f"📥 **NEW DEPOSIT PROOF SUBMITTED**\n\n"
-        f"👤 **User ID:** `{uid}`\n"
-        f"💰 **Amount:** {amount}$\n"
-        f"🛡️ **Network Chosen:** {method}\n"
-        f"📌 **TXID / Proof Note:**\n`{txid}`\n\n"
-        f"⚠️ *Please verify manually and add the funds to the user balance.*"
+        f"📥 <b>NEW DEPOSIT PROOF SUBMITTED</b>\n\n"
+        f"👤 <b>User ID:</b> <code>{safe_uid}</code>\n"
+        f"💰 <b>Amount:</b> {safe_amount}$\n"
+        f"🛡️ <b>Network Chosen:</b> {safe_method}\n"
+        f"📌 <b>Sender Info / Account:</b>\n<code>{safe_txid}</code>\n\n"
+        f"⚠️ <i>Verify manually to update balance.</i>"
     )
     
     try:
-        bot.send_message(PAYMENT_CHANNEL_ID, msg, parse_mode="Markdown")
-        bot.send_message(OWNER_ID, msg, parse_mode="Markdown")
-    except: pass
+        bot.send_message(PAYMENT_CHANNEL_ID, msg, parse_mode="HTML")
+        bot.send_message(OWNER_ID, msg, parse_mode="HTML")
+    except Exception as e:
+        print(f"❌ Deposit Channel Error (Check Permissions): {e}")
     
-    return jsonify({"status": "success", "message": "تم إرسال إثبات الإيداع إلى إدارة قناة المدفوعات بنجاح للمراجعة الفورية!"})
+    return jsonify({"status": "success", "message": "تم إرسال إثبات الإيداع بنجاح للمراجعة الفورية!"})
 
 @app.route('/api/withdraw')
 def api_withdraw():
@@ -548,21 +566,26 @@ def api_withdraw():
         user["balance"] = round(user["balance"] - amount, 4)
         save_data(data)
         
+    safe_uid = html.escape(str(uid)) if uid else "None"
+    safe_method = html.escape(str(method)) if method else "None"
+    safe_addr = html.escape(str(addr)) if addr else "None"
+        
     msg = (
-        f"📤 **NEW WITHDRAWAL REQUEST PENDING**\n\n"
-        f"👤 **User ID:** `{uid}`\n"
-        f"💰 **Requested Amount:** {amount}$\n"
-        f"🛡️ **Network System:** {method}\n"
-        f"📌 **Destination Wallet Address:**\n`{addr}`\n\n"
-        f"⚡ *Status: Under Review by Administration*"
+        f"📤 <b>NEW WITHDRAWAL REQUEST PENDING</b>\n\n"
+        f"👤 <b>User ID:</b> <code>{safe_uid}</code>\n"
+        f"💰 <b>Requested Amount:</b> {amount}$\n"
+        f"🛡️ <b>Network System:</b> {safe_method}\n"
+        f"📌 <b>Destination Wallet Address:</b>\n<code>{safe_addr}</code>\n\n"
+        f"⚡ <i>Status: Under Review by Administration</i>"
     )
     
     try:
-        bot.send_message(WITHDRAWAL_CHANNEL_ID, msg, parse_mode="Markdown")
-        bot.send_message(OWNER_ID, msg, parse_mode="Markdown")
-    except: pass
+        bot.send_message(WITHDRAWAL_CHANNEL_ID, msg, parse_mode="HTML")
+        bot.send_message(OWNER_ID, msg, parse_mode="HTML")
+    except Exception as e:
+        print(f"❌ Withdrawal Channel Error (Check Permissions): {e}")
     
-    return jsonify({"status": "success", "message": "تم تقديم طلب السحب بنجاح وأُرسل لقناة السحوبات للمراجعة والتحويل السريع!"})
+    return jsonify({"status": "success", "message": "تم تقديم طلب السحب بنجاح وأُرسل لقناة السحوبات!"})
 
 # --- 🤖 نظام أوامر تليجرام ---
 
@@ -588,8 +611,8 @@ def start_cmd(message):
                     try:
                         bot.send_message(
                             int(referrer_id), 
-                            f"👤 **Elite Expansion!**\n\nA new user has just initialized via your terminal link. **+0.10$** has been successfully credited to your secure vault balance! 💸", 
-                            parse_mode="Markdown"
+                            f"👤 <b>Elite Expansion!</b>\n\nA new user has just initialized via your terminal link. <b>+0.10$</b> has been credited!", 
+                            parse_mode="HTML"
                         )
                     except: pass
         save_data(data)
@@ -599,9 +622,9 @@ def start_cmd(message):
     
     bot.reply_to(
         message, 
-        f"🔥 **Welcome to Apex Cloud Mining Premium, Operator!**\n\nYou have successfully connected to the most advanced decentralized hash-rate generation network. "
-        f"Start mining passive yields for free right now, recruit alliances to gain unmatched commissions, and activate high-tier reactors to maximize your income empire.\n\n"
-        f"👇 **Tap the action button below to deploy your Mining Mini-App immediately:**", 
+        f"🔥 <b>Welcome to Apex Cloud Mining Premium, Operator!</b>\n\nStart mining passive yields for free right now, recruit alliances to gain unmatched commissions, and activate high-tier reactors to maximize your income empire.\n\n"
+        f"👇 <b>Tap the action button below to deploy your Mining Mini-App immediately:</b>", 
+        parse_mode="HTML",
         reply_markup=markup
     )
 
@@ -610,7 +633,7 @@ def broadcast_to_all(message):
     if message.from_user.id != OWNER_ID: return
     text = message.text.replace('/broadcast', '').strip()
     if not text:
-        bot.reply_to(message, "Please provide a valid text string to broadcast.")
+        bot.reply_to(message, "Please provide a valid text string.")
         return
     
     data = load_data()
@@ -618,10 +641,10 @@ def broadcast_to_all(message):
     success, fail = 0, 0
     for u_id in users.keys():
         try:
-            bot.send_message(int(u_id), f"📢 **SYSTEM WIDE BROADCAST:**\n\n{text}")
+            bot.send_message(int(u_id), f"📢 <b>SYSTEM WIDE BROADCAST:</b>\n\n{text}", parse_mode="HTML")
             success += 1
         except: fail += 1
-    bot.reply_to(message, f"📢 **Broadcast Protocol Completed:**\n\n✅ Dispatched to: {success} active units\n❌ Blocked/Failed: {fail} units")
+    bot.reply_to(message, f"📢 Broadcast Protocol Completed:\n\n✅ Dispatched: {success}\n❌ Failed: {fail}")
 
 def run_bot():
     while True:
