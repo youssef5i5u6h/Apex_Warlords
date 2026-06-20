@@ -33,17 +33,18 @@ WALLETS = {
     "TON": "UQAO-l2K9qQtbHzLGiWyyGRtsaGBh0t82qHaa2GDMqq49Lp8"
 }
 
+# 🛠️ إضافة الأيقونات والهوية البصرية لكل جهاز تعدين لتبدو كعتاد ألعاب احترافي
 MINER_TYPES = {
-    "doge": {"name": "DOGE Miner", "cost": 0.5, "speed": 0.0120, "tier": "STARTER", "color": "#cbd5e1"},
-    "wif": {"name": "WIF Turbine", "cost": 2.5, "speed": 0.0463, "tier": "COMMON", "color": "#22c55e"},
-    "pengu": {"name": "PENGU COLD", "cost": 5.0, "speed": 0.2894, "tier": "COMMON", "color": "#22c55e"},
-    "neiro": {"name": "NEIRO FOMO", "cost": 10.0, "speed": 1.3310, "tier": "RARE", "color": "#3b82f6"},
-    "popcat": {"name": "POPCAT PUMP", "cost": 25.0, "speed": 3.6169, "tier": "RARE", "color": "#3b82f6"},
-    "asteroid": {"name": "ASTEROID NODE", "cost": 50.0, "speed": 8.1019, "tier": "EPIC", "color": "#a855f7"},
-    "shib": {"name": "SHIB CORE", "cost": 100.0, "speed": 18.5185, "tier": "EPIC", "color": "#a855f7"},
-    "floki": {"name": "FLOKI RIG", "cost": 250.0, "speed": 57.7040, "tier": "EPIC", "color": "#a855f7"},
-    "pepe": {"name": "PEPE Engine", "cost": 1000.0, "speed": 289.3519, "tier": "ELITE", "color": "#f97316"},
-    "mtonga": {"name": "MTONGA Reactor", "cost": 5000.0, "speed": 777.0000, "tier": "LEGENDARY", "color": "#ef4444"}
+    "doge": {"name": "DOGE Miner", "cost": 0.5, "speed": 0.0120, "tier": "STARTER", "color": "#cbd5e1", "icon": "🛰️"},
+    "wif": {"name": "WIF Turbine", "cost": 2.5, "speed": 0.0463, "tier": "COMMON", "color": "#22c55e", "icon": "⚙️"},
+    "pengu": {"name": "PENGU COLD", "cost": 5.0, "speed": 0.2894, "tier": "COMMON", "color": "#22c55e", "icon": "❄️"},
+    "neiro": {"name": "NEIRO FOMO", "cost": 10.0, "speed": 1.3310, "tier": "RARE", "color": "#3b82f6", "icon": "🔮"},
+    "popcat": {"name": "POPCAT PUMP", "cost": 25.0, "speed": 3.6169, "tier": "RARE", "color": "#3b82f6", "icon": "🧬"},
+    "asteroid": {"name": "ASTEROID NODE", "cost": 50.0, "speed": 8.1019, "tier": "EPIC", "color": "#a855f7", "icon": "☄️"},
+    "shib": {"name": "SHIB CORE", "cost": 100.0, "speed": 18.5185, "tier": "EPIC", "color": "#a855f7", "icon": "🌋"},
+    "floki": {"name": "FLOKI RIG", "cost": 250.0, "speed": 57.7040, "tier": "EPIC", "color": "#a855f7", "icon": "⚔️"},
+    "pepe": {"name": "PEPE Engine", "cost": 1000.0, "speed": 289.3519, "tier": "ELITE", "color": "#f97316", "icon": "🐸"},
+    "mtonga": {"name": "MTONGA Reactor", "cost": 5000.0, "speed": 777.0000, "tier": "LEGENDARY", "color": "#ef4444", "icon": "👑"}
 }
 
 TASKS = {
@@ -76,7 +77,7 @@ def update_mining(user):
     user["last_calc"] = now
     return total_speed
 
-# --- 🚀 واجهة الويب الشاملة فائقة التطور (Premium Cyberpunk UI) ---
+# --- 🚀 واجهة الويب الشاملة فائقة التطور (Premium Cyberpunk Gaming UI) ---
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -89,20 +90,35 @@ HTML_TEMPLATE = """
         body { background: #030712; color: #f8fafc; margin: 0; padding-bottom: 120px; overflow-x: hidden; background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #030712 70%); }
         .top-bar { display: flex; flex-direction: column; align-items: center; padding: 18px 15px; background: rgba(17, 24, 39, 0.7); border-bottom: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(24px); position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
         .logo-area { font-size: 28px; font-weight: 900; background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; text-shadow: 0 0 25px rgba(56, 189, 248, 0.4); margin-bottom: 15px; }
+        
         .stats-row { display: flex; width: 100%; justify-content: space-between; gap: 14px; }
         .stat-box { flex: 1; background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; padding: 14px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 800; box-shadow: 0 8px 32px rgba(0,0,0,0.3); transition: 0.3s; }
         .stat-box.cash { color: #10b981; border-color: rgba(16, 185, 129, 0.3); text-shadow: 0 0 10px rgba(16,185,129,0.2); }
         .stat-box.gems { color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); text-shadow: 0 0 10px rgba(56,189,248,0.2); }
         
+        .wallet-tab-box { flex: 1; background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; padding: 14px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 800; box-shadow: 0 8px 32px rgba(0,0,0,0.3); transition: 0.3s; cursor: pointer; }
+        .wallet-tab-box.deposit-tab { color: #10b981; border-color: rgba(16, 185, 129, 0.3); }
+        .wallet-tab-box.deposit-tab.active { background: rgba(16, 185, 129, 0.12); border-color: #10b981; box-shadow: 0 0 15px rgba(16,185,129,0.25); }
+        .wallet-tab-box.withdraw-tab { color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
+        .wallet-tab-box.withdraw-tab.active { background: rgba(239, 68, 68, 0.12); border-color: #ef4444; box-shadow: 0 0 15px rgba(239,68,68,0.25); }
+        
         .page { display: none; padding: 20px 15px; animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .page.active { display: block; }
         
-        .miner-card { background: linear-gradient(145deg, rgba(31, 41, 55, 0.7) 0%, rgba(17, 24, 39, 0.9) 100%); border-radius: 24px; border: 1px solid rgba(255,255,255,0.06); padding: 20px; margin-bottom: 16px; position: relative; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 12px 40px rgba(0,0,0,0.5); overflow: hidden; border-left: 5px solid var(--bar-color); }
-        .miner-info { display: flex; flex-direction: column; gap: 4px; }
-        .miner-name { font-size: 19px; font-weight: 800; color: #fff; }
-        .miner-meta { font-size: 12px; color: #9ca3af; }
-        .miner-owned { font-size: 13px; color: #10b981; font-weight: bold; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 20px; width: fit-content; margin-top: 4px; }
-        .btn-buy { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #030712; border: none; font-weight: 900; padding: 12px 22px; border-radius: 16px; cursor: pointer; box-shadow: 0 6px 20px rgba(245, 158, 10, 0.3); font-size: 14px; transition: 0.2s; }
+        /* 🕹️ تصميم كارت الألعاب المطور كلياً */
+        .miner-card { background: linear-gradient(145deg, rgba(26, 31, 46, 0.85) 0%, rgba(12, 16, 26, 0.95) 100%); border-radius: 24px; border: 1px solid rgba(255,255,255,0.06); padding: 16px; margin-bottom: 18px; position: relative; display: flex; align-items: center; gap: 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.5); overflow: hidden; border-left: 5px solid var(--bar-color); transition: 0.3s; }
+        .miner-card:hover { transform: translateY(-3px); border-color: var(--bar-color); }
+        
+        /* 🌌 صندوق العرض الهولوغرافي للجهاز داخل اللعبة */
+        .miner-avatar-box { width: 70px; height: 70px; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.4) 100%); border: 2px solid var(--bar-color); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 34px; box-shadow: 0 0 15px var(--bar-color); flex-shrink: 0; position: relative; }
+        .miner-avatar-box::after { content: ''; position: absolute; width: 100%; height: 100%; background: linear-gradient(0deg, transparent 50%, rgba(255,255,255,0.1) 100%); top: 0; left: 0; border-radius: 16px; }
+        
+        .miner-info { display: flex; flex-direction: column; gap: 3px; flex-grow: 1; min-width: 0; }
+        .miner-name { font-size: 17px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .miner-meta { font-size: 11px; color: #9ca3af; }
+        .miner-owned { font-size: 11px; color: #10b981; font-weight: bold; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 20px; width: fit-content; margin-top: 3px; border: 1px solid rgba(16,185,129,0.2); }
+        
+        .btn-buy { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #030712; border: none; font-weight: 900; padding: 12px 18px; border-radius: 14px; cursor: pointer; box-shadow: 0 6px 20px rgba(245, 158, 10, 0.3); font-size: 13px; transition: 0.2s; flex-shrink: 0; }
         .btn-buy:active { transform: scale(0.95); }
         
         .main-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -166,15 +182,19 @@ HTML_TEMPLATE = """
     </div>
 
     <div id="page-store" class="page">
-        <h3 style="margin-top: 0; margin-bottom: 22px; text-align: center; color: #38bdf8; font-weight: 900; font-size: 22px;">متجر أجهزة التعدين السحابي</h3>
+        <h3 style="margin-top: 0; margin-bottom: 22px; text-align: center; color: #38bdf8; font-weight: 900; font-size: 22px; text-shadow: 0 0 10px rgba(56,189,248,0.3);">ترقية ترسانة التعدين السحابي</h3>
         {% for m_id, m in miner_types.items() %}
         <div class="miner-card" style="--bar-color: {{m.color}}">
-            <div class="miner-info">
-                <span class="miner-name">{{m.name}} <small style="font-size: 10px; color: {{m.color}}; font-weight: 900;">[{{m.tier}}]</small></span>
-                <span class="miner-meta">السعر: {{m.cost}}$ | الإنتاج: +{{m.speed}}/س</span>
-                <span class="miner-owned">العدد المملوك: {{user.miners.get(m_id, 0)}}</span>
+            <div class="miner-avatar-box">
+                {{m.icon}}
             </div>
-            <button class="btn-buy" onclick="buyMiner('{{m_id}}')">شراء</button>
+            <div class="miner-info">
+                <span class="miner-name">{{m.name}} <small style="font-size: 9px; color: {{m.color}}; font-weight: 900; letter-spacing: 0.5px;">[{{m.tier}}]</small></span>
+                <span class="miner-meta">السعر: <strong style="color: #fbbf24;">{{m.cost}}$</strong></span>
+                <span class="miner-meta">معدل الهاش: <strong style="color: #38bdf8;">+{{m.speed}}/س</strong></span>
+                <span class="miner-owned">المخزون المملوك: {{user.miners.get(m_id, 0)}}</span>
+            </div>
+            <button class="btn-buy" onclick="buyMiner('{{m_id}}')">تجهيز</button>
         </div>
         {% endfor %}
     </div>
@@ -182,7 +202,7 @@ HTML_TEMPLATE = """
     <div id="page-tasks" class="page">
         <div class="section-card">
             <h4 style="margin-top: 0; color: #38bdf8; margin-bottom: 8px; font-size: 18px;">🔗 نظام كسب الإحالات</h4>
-            <p style="font-size: 13px; color: #9ca3af; margin-bottom: 14px; line-height: 1.5;">شارك الرابط مع أصدقائك واحصل على مكافأة فورية بقيمة <strong style="color: #10b981;">0.05$</strong> عن كل شخص يسجل من خلالك!</p>
+            <p style="font-size: 13px; color: #9ca3af; margin-bottom: 14px; line-height: 1.5;">شارك الرابط مع أصدقائك واحصل على مكافأة فورية بقيمة <strong style="color: #10b981;">0.10$</strong> عن كل شخص يسجل من خلالك!</p>
             <input type="text" id="ref-url" value="{{invite_url}}" readonly style="text-align: left; font-family: monospace; font-size: 12px; background: rgba(0,0,0,0.5);">
             <button class="btn-action" onclick="copyRefLink()">نسخ رابط الإحالة</button>
             <div style="display: flex; justify-content: space-between; font-size: 14px; margin-top: 14px; font-weight: bold; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px;">
@@ -208,7 +228,13 @@ HTML_TEMPLATE = """
     </div>
 
     <div id="page-wallet" class="page">
-        <div class="section-card" style="border-color: rgba(16, 185, 129, 0.2);">
+        
+        <div class="stats-row" style="margin-bottom: 22px;">
+            <div id="tab-deposit-btn" class="wallet-tab-box deposit-tab active" onclick="switchWalletForm('deposit')">📥 الإيداع (Deposit)</div>
+            <div id="tab-withdraw-btn" class="wallet-tab-box withdraw-tab" onclick="switchWalletForm('withdraw')">📤 السحب (Withdraw)</div>
+        </div>
+
+        <div id="section-deposit" class="section-card" style="border-color: rgba(16, 185, 129, 0.2);">
             <h4 style="margin-top: 0; color: #10b981; margin-bottom: 8px; font-size: 18px;">📥 شحن الرصيد (Deposit)</h4>
             <p style="font-size: 12px; color: #9ca3af; margin-bottom: 14px; line-height: 1.5;">قم باختيار الشبكة لإظهار عنوان المحفظة الخاص بها بدقة، ثم أرسل إثبات التحويل لتفعيل رصيدك.</p>
             
@@ -236,7 +262,7 @@ HTML_TEMPLATE = """
             <button class="btn-action" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); box-shadow: 0 6px 20px rgba(16,185,129,0.3);" onclick="submitDeposit()">تأكيد وإرسال إثبات الإيداع</button>
         </div>
 
-        <div class="section-card" style="border-color: rgba(239, 68, 68, 0.2);">
+        <div id="section-withdraw" class="section-card" style="border-color: rgba(239, 68, 68, 0.2); display: none;">
             <h4 style="margin-top: 0; color: #ef4444; margin-bottom: 8px; font-size: 18px;">📤 طلب سحب فوري (Withdraw)</h4>
             <p style="font-size: 12px; color: #9ca3af; margin-bottom: 14px; line-height: 1.5;">اسحب أرباحك مباشرة إلى محفظتك الشخصية بكل أمان وسهولة فور بلوغ الحد الأدنى.</p>
             
@@ -284,6 +310,25 @@ HTML_TEMPLATE = """
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
             element.classList.add('active');
+        }
+
+        function switchWalletForm(type) {
+            const depBtn = document.getElementById('tab-deposit-btn');
+            const witBtn = document.getElementById('tab-withdraw-btn');
+            const depSec = document.getElementById('section-deposit');
+            const witSec = document.getElementById('section-withdraw');
+
+            if(type === 'deposit') {
+                depBtn.classList.add('active');
+                witBtn.classList.remove('active');
+                depSec.style.display = 'block';
+                witSec.style.display = 'none';
+            } else {
+                witBtn.classList.add('active');
+                depBtn.classList.remove('active');
+                witSec.style.display = 'block';
+                depSec.style.display = 'none';
+            }
         }
 
         function onDepositNetworkChange() {
@@ -425,13 +470,13 @@ def api_buy_miner():
     with data_lock:
         data = load_data()
         user = data['users'].get(uid)
-        if user.get("balance", 0.0) < cost: return jsonify({"status": "error", "message": "رصيدك غير كافٍ لإتمام عملية الشراء! قم بطلب الشحن أولاً."})
+        if user.get("balance", 0.0) < cost: return jsonify({"status": "error", "message": "رصيدك غير كافٍ لشراء وتجهيز هذا العتاد! قم بالإيداع أولاً."})
         user["balance"] = round(user["balance"] - cost, 4)
         if "miners" not in user: user["miners"] = {}
         user["miners"][m_id] = user["miners"].get(m_id, 0) + 1
         update_mining(user)
         save_data(data)
-    return jsonify({"status": "success", "message": f"تم شراء وتشغيل {MINER_TYPES[m_id]['name']} بنجاح داخل المنجم!"})
+    return jsonify({"status": "success", "message": f"تم شراء وتجهيز {MINER_TYPES[m_id]['name']} داخل منجمك بنجاح! ⚡"})
 
 @app.route('/api/complete_task')
 def api_complete_task():
@@ -464,7 +509,6 @@ def api_daily_reward():
             return jsonify({"status": "success", "message": "تم استلام مكافأة المالك الكبرى بنجاح (+5$)! 🚀"})
         return jsonify({"status": "error", "message": "لقد أخذت مكافأتك اليوم بالفعل! عد بعد مرور 24 ساعة."})
 
-# 📥 مسار إرسال إثباتات الإيداع إلى قناة الدفع حصراً
 @app.route('/api/deposit')
 def api_deposit():
     uid = request.args.get('id')
@@ -488,7 +532,6 @@ def api_deposit():
     
     return jsonify({"status": "success", "message": "تم إرسال إثبات الإيداع إلى إدارة قناة المدفوعات بنجاح للمراجعة الفورية!"})
 
-# 📤 مسار تقديم طلبات السحب إلى قناة السحب حصراً
 @app.route('/api/withdraw')
 def api_withdraw():
     uid = request.args.get('id')
@@ -521,7 +564,7 @@ def api_withdraw():
     
     return jsonify({"status": "success", "message": "تم تقديم طلب السحب بنجاح وأُرسل لقناة السحوبات للمراجعة والتحويل السريع!"})
 
-# --- 🤖 نظام أوامر ومعالجة رسائل تليجرام المتقدمة باللغة الإنجليزية الجذابة ---
+# --- 🤖 نظام أوامر تليجرام ---
 
 @bot.message_handler(commands=['start'])
 def start_cmd(message):
@@ -540,12 +583,12 @@ def start_cmd(message):
                 if referrer_id in data['users'] and referrer_id != uid:
                     ref_user = data['users'][referrer_id]
                     ref_user["ref_count"] = ref_user.get("ref_count", 0) + 1
-                    ref_user["ref_earned"] = round(ref_user.get("ref_earned", 0.0) + 0.05, 4)
-                    ref_user["balance"] = round(ref_user.get("balance", 0.0) + 0.05, 4)
+                    ref_user["ref_earned"] = round(ref_user.get("ref_earned", 0.0) + 0.10, 4)
+                    ref_user["balance"] = round(ref_user.get("balance", 0.0) + 0.10, 4)
                     try:
                         bot.send_message(
                             int(referrer_id), 
-                            f"👤 **Elite Expansion!**\n\nA new user has just initialized via your terminal link. **+0.05$** has been successfully credited to your secure vault balance! 💸", 
+                            f"👤 **Elite Expansion!**\n\nA new user has just initialized via your terminal link. **+0.10$** has been successfully credited to your secure vault balance! 💸", 
                             parse_mode="Markdown"
                         )
                     except: pass
@@ -567,7 +610,7 @@ def broadcast_to_all(message):
     if message.from_user.id != OWNER_ID: return
     text = message.text.replace('/broadcast', '').strip()
     if not text:
-        bot.reply_to(message, "Please provide a valid text string to broadcast. Example:\n`/broadcast System Upgrade Successful`")
+        bot.reply_to(message, "Please provide a valid text string to broadcast.")
         return
     
     data = load_data()
