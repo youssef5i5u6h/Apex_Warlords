@@ -8,7 +8,7 @@ import telebot
 app = Flask(__name__)
 
 # --- ⚙️ الإعدادات الأساسية وقنوات التليجرام الخاصة بك ---
-TOKEN = "8895527275:AAEh3hBBR6IQGc9APTcdK8RZqPaZNXvCfnM"
+TOKEN = "8895527275:AAGg5nDAdS2O2NKDX8IAjcPt7Dknz9CgpL4"
 OWNER_ID = 1609075265
 bot = telebot.TeleBot(TOKEN)
 DATA_FILE = 'data.json'
