@@ -7,6 +7,9 @@ import telebot
 
 app = Flask(__name__)
 
+# --- 🔒 Threading Lock to Prevent Race Conditions ---
+data_lock = threading.Lock()
+
 # --- ⚙️ Core Configuration & Channels ---
 TOKEN = "8895527275:AAGg5nDAdS2O2NKDX8IAjcPt7Dknz9CgpL4"
 OWNER_ID = 1609075265  
@@ -237,7 +240,7 @@ HTML_TEMPLATE = """
                 <input type="number" name="amount" class="input-select" placeholder="مثال: 10" required min="1">
                 
                 <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:8px;">عنوان محفظتك أو الآيدي الذي أرسلت منه المعاملة:</label>
-                <input type="text" name="sender_info" class="input-select" placeholder="اكتب الآيدي أو الـ TxID أو حسابك الذي دافعت منه" required>
+                <input type="text" name="sender_info" class="input-select" placeholder="اكتب الآيدي أو حسابك الذي دافعت منه" required>
                 
                 <button type="submit" class="btn-action">تأكيد وإرسال للتحقق</button>
             </form>
@@ -341,53 +344,55 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# --- Routes Logic with Safe HTML Responses ---
+# --- Routes Logic Secured with Thread Locks ---
 @app.route('/')
 def index():
     uid = request.args.get('id', '1609075265')
-    data = load_data()
-    if uid not in data['users']:
-        data['users'][uid] = {"balance": 5.0, "gems": 10, "mined": 0.0, "last_calc": time.time(), "miners": {}}
+    with data_lock:
+        data = load_data()
+        if uid not in data['users']:
+            # 🎯 تم تعديل السطر بالأسفل لتبدأ الحسابات الجديدة بـ 0.0 دولار وجواهر صفر بدلاً من 5 دولار
+            data['users'][uid] = {"balance": 0.0, "gems": 0, "mined": 0.0, "last_calc": time.time(), "miners": {}}
+        user = data['users'][uid]
+        speed = update_mining(user)
         save_data(data)
-    
-    user = data['users'][uid]
-    speed = update_mining(user)
-    save_data(data)
     return render_template_string(HTML_TEMPLATE, user=user, user_id=uid, wallets=WALLETS, miner_types=MINER_TYPES, speed=round(speed, 4), news_link=NEWS_CHANNEL_LINK)
 
 @app.route('/api/buy')
 def api_buy():
     uid = request.args.get('id')
     miner_id = request.args.get('miner')
-    data = load_data()
-    user = data['users'].get(uid)
-    
-    if not user or miner_id not in MINER_TYPES:
-        return jsonify({"status": "error", "message": "Wrong data provided"})
+    with data_lock:
+        data = load_data()
+        user = data['users'].get(uid)
         
-    cost = MINER_TYPES[miner_id]["cost"]
-    update_mining(user)
-    
-    if user["balance"] >= cost:
-        user["balance"] = round(user["balance"] - cost, 4)
-        if "miners" not in user or not isinstance(user["miners"], dict):
-            user["miners"] = {}
-        user["miners"][miner_id] = user["miners"].get(miner_id, 0) + 1
-        save_data(data)
-        return jsonify({"status": "success"})
-    return jsonify({"status": "error", "message": "Your cash balance is insufficient to buy this rig!"})
+        if not user or miner_id not in MINER_TYPES:
+            return jsonify({"status": "error", "message": "Wrong data provided"})
+            
+        cost = MINER_TYPES[miner_id]["cost"]
+        update_mining(user)
+        
+        if user["balance"] >= cost:
+            user["balance"] = round(user["balance"] - cost, 4)
+            if "miners" not in user or not isinstance(user["miners"], dict):
+                user["miners"] = {}
+            user["miners"][miner_id] = user["miners"].get(miner_id, 0) + 1
+            save_data(data)
+            return jsonify({"status": "success"})
+        return jsonify({"status": "error", "message": "Your cash balance is insufficient to buy this rig!"})
 
 @app.route('/api/claim')
 def api_claim():
     uid = request.args.get('id')
-    data = load_data()
-    user = data['users'].get(uid)
-    if user:
-        update_mining(user)
-        user["balance"] = round(user["balance"] + user["mined"], 6)
-        user["mined"] = 0.0
-        save_data(data)
-        return jsonify({"status": "success"})
+    with data_lock:
+        data = load_data()
+        user = data['users'].get(uid)
+        if user:
+            update_mining(user)
+            user["balance"] = round(user["balance"] + user["mined"], 6)
+            user["mined"] = 0.0
+            save_data(data)
+            return jsonify({"status": "success"})
     return jsonify({"status": "error"})
 
 @app.route('/deposit', methods=['POST'])
@@ -395,7 +400,7 @@ def deposit():
     uid = request.form['user_id']
     currency = request.form['currency']
     amount = request.form.get('amount', '10')
-    sender_info = request.form.get('sender_info', 'Not Provided') # استلام بيانات الآيدي المُرْسِل
+    sender_info = request.form.get('sender_info', 'Not Provided')
     
     try:
         markup = telebot.types.InlineKeyboardMarkup()
@@ -404,7 +409,6 @@ def deposit():
             telebot.types.InlineKeyboardButton("❌ Reject Request", callback_data=f"reject_{uid}")
         )
         
-        # [English Text Outside] - تم إضافة معرّف الإرسال هنا بدقة للإدارة
         text = (
             f"📥 **New Deposit Request (Manual Verification)**\n\n"
             f"👤 User Bot ID: `{uid}`\n"
@@ -420,18 +424,17 @@ def deposit():
                 <h2 style="color:#f59e0b; margin-bottom:15px; font-weight:900;">⏳ Processing Request</h2>
                 <p style="color:#94a3b8; line-height:1.7; font-size:15px;">لقد تم إرسال تفاصيل معاملتك المالية والآيدي المُرْسِل للتحقق اليدوي بنجاح. سيتم مراجعة طلبك وإضافة الرصيد فور التأكيد.</p>
                 <br>
-                <a href="javascript:history.back()" style="display:inline-block; background: linear-gradient(90deg, #2563eb, #1d4ed8); color:#fff; text-decoration:none; padding:14px 30px; border-radius:12px; font-weight:bold; font-size:14px; box-shadow:0 4px 15px rgba(29,78,216,0.3);">العودة للتطبيق</a>
+                <a href="javascript:history.back()" style="display:inline-block; background: linear-gradient(90deg, #2563eb, #1d4ed8); color:#fff; text-decoration:none; padding:14px 30px; border-radius:12px; font-weight:bold; font-size:14px;">العودة للتطبيق</a>
             </div>
         </body>
         """
     except Exception as e:
-        return f"""
+        return """
         <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:80px;">
-            <div style="background:rgba(20,28,47,0.6); backdrop-filter:blur(15px); max-width:480px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #ef4444; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-                <h2 style="color:#ef4444; font-weight:900; margin-bottom:15px;">❌ Error</h2>
-                <p style="color:#94a3b8; line-height:1.7; font-size:15px;">Failed to send to telegram channel. Check bot permissions.</p>
-                <br>
-                <a href="javascript:history.back()" style="display:inline-block; background:#ef4444; color:#fff; text-decoration:none; padding:12px 25px; border-radius:12px; font-weight:bold;">Back</a>
+            <div style="background:rgba(20,28,47,0.6); max-width:480px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #ef4444;">
+                <h2 style="color:#ef4444; font-weight:900;">❌ Error</h2>
+                <p style="color:#94a3b8;">Failed to send to telegram channel. Check bot privileges.</p>
+                <br><a href="javascript:history.back()" style="color:#ef4444; font-weight:bold;">Back</a>
             </div>
         </body>
         """
@@ -443,77 +446,54 @@ def withdraw():
     user_address = request.form['user_address']
     amount = float(request.form.get('amount', '10'))
     
-    data = load_data()
-    user = data['users'].get(uid)
-    
-    if not user:
-        return """
-        <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
-            <div style="background:rgba(20,28,47,0.6); backdrop-filter:blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #ef4444;">
-                <h2 style="color:#ef4444;">❌ Error</h2>
-                <p style="color:#94a3b8;">User account data not found in database.</p>
-                <br><a href="javascript:history.back()" style="color:#3b82f6; font-weight:bold; text-decoration:none;">Go Back</a>
-            </div>
-        </body>
-        """
+    with data_lock:
+        data = load_data()
+        user = data['users'].get(uid)
         
-    if user["balance"] < amount:
-        return """
-        <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
-            <div style="background:rgba(20,28,47,0.6); backdrop-filter:blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #ef4444;">
-                <h2 style="color:#ef4444;">❌ Insufficient Balance</h2>
-                <p style="color:#94a3b8;">رصيدك الحالي غير كافٍ لإجراء سحب بهذه القيمة العالية.</p>
-                <br><a href="javascript:history.back()" style="color:#3b82f6; font-weight:bold; text-decoration:none;">Go Back</a>
-            </div>
-        </body>
-        """
-    
-    try:
+        if not user:
+            return '<body style="background:#05070f; color:#fff; text-align:center; padding-top:100px;"><h2>❌ Error: User missing</h2></body>'
+            
+        if user["balance"] < amount:
+            return '<body style="background:#05070f; color:#fff; text-align:center; padding-top:100px;"><h2>❌ Insufficient Balance</h2></body>'
+        
         user["balance"] = round(user["balance"] - amount, 4)
         save_data(data)
-        
+    
+    try:
         markup = telebot.types.InlineKeyboardMarkup()
         markup.add(
             telebot.types.InlineKeyboardButton(f"✅ Approve & Send", callback_data=f"wapprove_{uid}_{amount}"),
             telebot.types.InlineKeyboardButton("❌ Reject & Refund", callback_data=f"wreject_{uid}_{amount}")
         )
         
-        # [English Text Outside]
         text = f"💸 **New Withdrawal Request Pending**\n\n👤 User ID: `{uid}`\n🪙 Network: `{currency}`\n📥 Wallet Address: `{user_address}`\n💰 Requested Amount: `{amount}$`"
         bot.send_message(WITHDRAWAL_CHANNEL_ID, text, reply_markup=markup, parse_mode="Markdown")
         
         return """
         <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
-            <div style="background: rgba(20, 28, 47, 0.6); backdrop-filter: blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #10b981; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-                <h2 style="color:#10b981; margin-bottom:15px; font-weight:900;">⏳ Withdrawal Registered</h2>
-                <p style="color:#94a3b8; line-height:1.7; font-size:15px;">تم تسجيل طلب سحب أرباحك بنجاح، وهو قيد المراجعة اليدوية الآن من قبل الإدارة للإرسال لمحفظتك.</p>
-                <br>
-                <a href="javascript:history.back()" style="display:inline-block; background: linear-gradient(90deg, #10b981, #059669); color:#fff; text-decoration:none; padding:14px 30px; border-radius:12px; font-weight:bold; font-size:14px;">العودة للتطبيق</a>
+            <div style="background: rgba(20, 28, 47, 0.6); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #10b981;">
+                <h2 style="color:#10b981;">⏳ Withdrawal Registered</h2>
+                <p style="color:#94a3b8;">تم تسجيل طلب سحب أرباحك بنجاح، وهو قيد المراجعة اليدوية الآن من قبل الإدارة للإرسال لمحفظتك.</p>
+                <br><a href="javascript:history.back()" style="color:#10b981; font-weight:bold;">العودة للتطبيق</a>
             </div>
         </body>
         """
     except Exception as e:
-        user["balance"] = round(user["balance"] + amount, 4)
-        save_data(data)
-        return """
-        <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
-            <div style="background:rgba(20,28,47,0.6); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #ef4444;">
-                <h2 style="color:#ef4444;">❌ Telegram Connection Error</h2>
-                <p style="color:#94a3b8;">Failed to notify admin channel. Balance has been refunded safely.</p>
-                <br><a href="javascript:history.back()" style="color:#3b82f6; font-weight:bold; text-decoration:none;">Go Back</a>
-            </div>
-        </body>
-        """
+        with data_lock:
+            data = load_data()
+            if uid in data['users']:
+                data['users'][uid]["balance"] = round(data['users'][uid]["balance"] + amount, 4)
+                save_data(data)
+        return '<body style="background:#05070f; color:#fff; text-align:center; padding-top:100px;"><h2>❌ Error contacting telegram channel. Balance returned.</h2></body>'
 
-# --- 🔐 Channels Buttons Control ---
+# --- 🔐 Channels Buttons Control (Protected Against Thread Concurrency) ---
 @bot.callback_query_handler(func=lambda call: True)
 def handle_admin_buttons(call):
     try: bot.answer_callback_query(call.id)
     except Exception: pass
         
     if call.from_user.id != OWNER_ID:
-        try:
-            bot.send_message(call.message.chat.id, f"⚠️ Security Alert: Your account is not the designated project owner!\n👤 Your Telegram ID: `{call.from_user.id}`")
+        try: bot.send_message(call.message.chat.id, f"⚠️ Security Alert: Denied configuration access for ID {call.from_user.id}")
         except Exception: pass
         return
         
@@ -521,44 +501,49 @@ def handle_admin_buttons(call):
     action = parts[0]
     uid = parts[1]
     
-    data = load_data()
-    if uid not in data['users']:
-        try: bot.send_message(call.message.chat.id, "❌ Error: This account identifier is missing from database.")
-        except Exception: pass
-        return
-
-    try:
+    # Executing the critical file write inside the data lock securely
+    with data_lock:
+        data = load_data()
+        if uid not in data['users']:
+            return
+            
+        success = False
+        amount = 0.0
+        
         if action == "approve":
             amount = float(parts[2])
             data['users'][uid]['balance'] = round(data['users'][uid]['balance'] + amount, 4)
             save_data(data)
-            
-            try: bot.send_message(uid, f"🎉 Congratulations! Your deposit request has been approved. **{amount}$** added to your balance.")
-            except Exception: pass
-            bot.edit_message_text(call.message.text + f"\n\n🟢 **Status: APPROVED (+{amount}$ added)**", call.message.chat.id, call.message.message_id)
-            
+            success = True
         elif action == "reject":
-            try: bot.send_message(uid, "❌ Your deposit request was rejected by management. Please check your transaction receipts.")
-            except Exception: pass
-            bot.edit_message_text(call.message.text + "\n\n🔴 **Status: REJECTED BY ADMIN**", call.message.chat.id, call.message.message_id)
-
+            success = True
         elif action == "wapprove":
             amount = float(parts[2])
-            try: bot.send_message(uid, f"✅ Success! Your withdrawal request of **{amount}$** was fully approved and processed to your destination wallet address.")
-            except Exception: pass
-            bot.edit_message_text(call.message.text + f"\n\n🟢 **Status: SENT & CONFIRMED SUCCESSFULLY**", call.message.chat.id, call.message.message_id)
-            
+            success = True
         elif action == "wreject":
             amount = float(parts[2])
             data['users'][uid]['balance'] = round(data['users'][uid]['balance'] + amount, 4)
             save_data(data)
+            success = True
+
+    # Telegram network payloads triggered safely outside the active database lock
+    if success:
+        if action == "approve":
+            try: bot.send_message(uid, f"🎉 Congratulations! Your deposit request has been approved. **{amount}$** added to your balance.")
+            except Exception: pass
+            bot.edit_message_text(call.message.text + f"\n\n🟢 **Status: APPROVED (+{amount}$ added)**", call.message.chat.id, call.message.message_id)
+        elif action == "reject":
+            try: bot.send_message(uid, "❌ Your deposit request was rejected by management. Please check your transaction receipts.")
+            except Exception: pass
+            bot.edit_message_text(call.message.text + "\n\n🔴 **Status: REJECTED BY ADMIN**", call.message.chat.id, call.message.message_id)
+        elif action == "wapprove":
+            try: bot.send_message(uid, f"✅ Success! Your withdrawal request of **{amount}$** was fully approved and processed to your destination wallet address.")
+            except Exception: pass
+            bot.edit_message_text(call.message.text + f"\n\n🟢 **Status: SENT & CONFIRMED SUCCESSFULLY**", call.message.chat.id, call.message.message_id)
+        elif action == "wreject":
             try: bot.send_message(uid, f"❌ Attention: Your withdrawal request of **{amount}$** has been rejected. Funds returned to your available app balance safely.")
             except Exception: pass
             bot.edit_message_text(call.message.text + f"\n\n🔴 **Status: REJECTED (Funds refunded to user)**", call.message.chat.id, call.message.message_id)
-            
-    except Exception as e:
-        try: bot.send_message(call.message.chat.id, f"❌ Internal Error: {str(e)}")
-        except Exception: pass
 
 # --- 🎯 Welcome Handling Original ---
 @bot.message_handler(commands=['start'])
