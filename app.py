@@ -13,7 +13,7 @@ OWNER_ID = 1609075265
 bot = telebot.TeleBot(TOKEN)
 DATA_FILE = 'data.json'
 
-# قنواتك الرسمية الحالية
+# قنواتك الرسمية
 PAYMENT_CHANNEL_ID = "@Apex_payment1"     # قناة إشعارات الإيداع
 WITHDRAWAL_CHANNEL_ID = "@lil_10l"       # قناة إشعارات السحب
 NEWS_CHANNEL_LINK = "https://t.me/lS_3P"   # قناة أخبار البوت الكبيرة
@@ -51,7 +51,6 @@ def update_mining(user):
     now = time.time()
     last = user.get("last_calc", now)
     
-    # ⚡ تم إضافة سرعة أساسية مجانية 0.01 عشان العداد يشتغل علطول للمبتدئين
     total_speed = 0.0100 
     
     if "miners" in user and isinstance(user["miners"], dict):
@@ -71,7 +70,7 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Apex Warlords</title>
+    <title>Apex Mining</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0b0e14; color: #ffffff; margin: 0; padding-bottom: 90px; overflow-x: hidden; }
@@ -208,7 +207,6 @@ HTML_TEMPLATE = """
             <label style="font-size:14px; font-weight:bold; display:block; margin-bottom:8px;">عنوان محفظة الاستقبال الخاص بنا:</label>
             <div class="address-box" id="wallet-address">{{wallets['USDT_BEP20']}}</div>
             
-            <!-- تم إلغاء خانة الإسكرين وتبديلها بمبلغ التأكيد المباشر -->
             <form action="/deposit" method="post" style="margin-top:20px;">
                 <input type="hidden" name="user_id" value="{{user_id}}">
                 <input type="hidden" name="currency" id="hidden-currency" value="USDT_BEP20">
@@ -221,7 +219,7 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
-    <!-- شريط التنقل السفلي الاحترافي -->
+    <!-- شريط التنقل السفلي -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchPage('main', this)"><span class="nav-icon">🏠</span>الرئيسية</div>
         <div class="nav-item" onclick="switchPage('miners', this)"><span class="nav-icon">⛏️</span>المعدنون</div>
@@ -235,7 +233,6 @@ HTML_TEMPLATE = """
         let minedAmount = Number("{{user.mined}}");
         let totalSpeed = Number("{{speed}}");
 
-        // العداد يعمل لايف ومباشر وبسلاسة تامة بدون أي توقف
         setInterval(() => {
             if (totalSpeed > 0) {
                 minedAmount += (totalSpeed / 3600);
@@ -331,7 +328,6 @@ def api_claim():
         return jsonify({"status": "success"})
     return jsonify({"status": "error"})
 
-# نظام الدفع الجديد النصّي بالكامل والمعدل بناء على طلبك
 @app.route('/deposit', methods=['POST'])
 def deposit():
     uid = request.form['user_id']
@@ -344,11 +340,9 @@ def deposit():
         telebot.types.InlineKeyboardButton("❌ رفض الطلب", callback_data=f"reject_{uid}")
     )
     
-    # يرسل رسالة نصية واضحة في القناة للأدمن بدون صور وسكرينات
     text = f"📥 **طلب إيداع جديد (تأكيد يدوي)**\n\n👤 معرف المستخدم: `{uid}`\n🪙 العملة المستخدمة: `{currency}`\n💰 المبلغ المذكور: `{amount}$`"
     bot.send_message(PAYMENT_CHANNEL_ID, text, reply_markup=markup, parse_mode="Markdown")
     
-    # صفحة "قيد المراجعة" الاحترافية المتناسقة مع الألوان
     return """
     <body style="background:#0b0e14; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
         <div style="background:#131a26; max-width:400px; margin:0 auto; padding:30px; border-radius:20px; border:1px solid #1e293b; box-shadow:0 4px 15px rgba(0,0,0,0.4);">
@@ -360,14 +354,20 @@ def deposit():
     </body>
     """
 
-# --- كود تحكم البوت والقبول التلقائي ---
+# --- 🚀 تم تعديل رسالة الترحيب والاسم هنا للإنجليزية بالكامل ---
 @bot.message_handler(commands=['start'])
 def start(m):
     uid = str(m.from_user.id)
     url = f"https://apexwarlords-production.up.railway.app?id={uid}"
+    
     markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(telebot.types.InlineKeyboardButton("تشغيل لعبة التعدين 🚀", web_app=telebot.types.WebAppInfo(url=url)))
-    bot.send_message(m.chat.id, "🎯 مرحبًا بك في بوت تعدين **Apex Warlords**!\n\nاضغط على الزر أدناه لفتح الميني آب وبدء شراء أجهزة التعدين وتوليد الأرباح الحية.", reply_markup=markup)
+    markup.add(telebot.types.InlineKeyboardButton("Launch Apex Mining 🚀", web_app=telebot.types.WebAppInfo(url=url)))
+    
+    welcome_text = (
+        "🎯 Welcome to **Apex Mining** bot!\n\n"
+        "Tap the button below to launch the Mini App, purchase your mining rigs, and start generating live profits instantly."
+    )
+    bot.send_message(m.chat.id, welcome_text, reply_markup=markup, parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_admin_buttons(call):
@@ -384,10 +384,8 @@ def handle_admin_buttons(call):
         data['users'][uid]['balance'] = round(data['users'][uid]['balance'] + amount, 4)
         save_data(data)
         
-        # إرسال إشعار فوري للمستخدم في الخاص بتاعه
         bot.send_message(uid, f"🎉 تهانينا! تمت الموافقة على إيداعك وتمت إضافة **{amount}$** إلى رصيدك الكاش بنجاح.")
         
-        # تحديث الرسالة وتوثيقها في قناة السحوبات/العمليات الناجحة
         bot.edit_message_text(call.message.text + f"\n\n🟢 **الحالة: تم قبول الإيداع وإضافة {amount}$**", call.message.chat.id, call.message.message_id)
         bot.send_message(WITHDRAWAL_CHANNEL_ID, f"✅ **عملية شحن ناجحة**\n\n👤 المستخدم: `{uid}`\n💰 القيمة المضافة: `{amount}$` بنجاح.")
         
@@ -395,7 +393,7 @@ def handle_admin_buttons(call):
         bot.send_message(uid, "❌ تم رفض طلب الإيداع الخاص بك من قِبل الإدارة، يرجى مراجعة الدعم وتأكيد بيانات التحويل.")
         bot.edit_message_text(call.message.text + "\n\n🔴 **الحالة: تم رفض الطلب**", call.message.chat.id, call.message.message_id)
 
-# تشغيل البوت في خلفية السيرفر لمنع تجميد خادم الفلاسك
+# تشغيل البوت في خلفية السيرفر
 threading.Thread(target=lambda: bot.infinity_polling()).start()
 
 if __name__ == '__main__':
