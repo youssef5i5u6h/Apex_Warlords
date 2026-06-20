@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # --- ⚙️ الإعدادات الأساسية وقنوات التليجرام الخاصة بك ---
 TOKEN = "8895527275:AAGg5nDAdS2O2NKDX8IAjcPt7Dknz9CgpL4"
-OWNER_ID = 1609075265
+OWNER_ID = 1609075265  # لو الزرار قالك الـ ID بتاعك مختلف، غير الرقم ده بالرقم اللي هيظهرلك
 bot = telebot.TeleBot(TOKEN)
 DATA_FILE = 'data.json'
 
@@ -70,7 +70,6 @@ HTML_TEMPLATE = """
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #05070f; color: #f8fafc; margin: 0; padding-bottom: 110px; overflow-x: hidden; background-image: radial-gradient(circle at 50% 0%, #111827 0%, #05070f 70%); }
         
-        /* الهيدر العلوي الفخم */
         .top-bar { display: flex; flex-direction: column; align-items: center; padding: 18px 15px; background: rgba(10, 15, 30, 0.7); border-bottom: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 1000; }
         .logo-area { font-size: 26px; font-weight: 900; background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; text-shadow: 0 0 20px rgba(0, 242, 254, 0.3); margin-bottom: 15px; }
         .stats-row { display: flex; width: 100%; justify-content: space-between; gap: 14px; }
@@ -82,7 +81,6 @@ HTML_TEMPLATE = """
         .page.active { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* كروت المعدنين الأنيقة */
         .miner-card { background: linear-gradient(145deg, rgba(20, 28, 47, 0.9) 0%, rgba(11, 16, 28, 0.9) 100%); border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); padding: 18px; margin-bottom: 16px; position: relative; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.4); overflow: hidden; transition: 0.2s; }
         .miner-card:active { transform: scale(0.98); border-color: rgba(255,255,255,0.15); }
         .miner-info { display: flex; flex-direction: column; gap: 6px; }
@@ -93,7 +91,6 @@ HTML_TEMPLATE = """
         .btn-buy { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #05070f; border: none; font-weight: 900; padding: 14px 24px; border-radius: 16px; cursor: pointer; box-shadow: 0 6px 20px rgba(217, 119, 6, 0.3); font-size: 14px; transition: 0.2s; }
         .btn-buy:active { transform: scale(0.92); box-shadow: none; }
 
-        /* الكور النيوني المركزي المشع */
         .main-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .reactor-core { width: 200px; height: 200px; position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; }
         .reactor-sphere { width: 130px; height: 130px; background: radial-gradient(circle, #00f2fe 0%, #1d4ed8 100%); border-radius: 50%; box-shadow: 0 0 50px rgba(0, 242, 254, 0.6), inset 0 0 20px rgba(255,255,255,0.6); animation: pulse 2s infinite alternate cubic-bezier(0.4, 0, 0.6, 1); z-index: 2; }
@@ -101,7 +98,6 @@ HTML_TEMPLATE = """
         @keyframes pulse { from { transform: scale(1); box-shadow: 0 0 35px rgba(0, 242, 254, 0.5); } to { transform: scale(1.08); box-shadow: 0 0 60px rgba(0, 242, 254, 0.9); } }
         @keyframes rotateRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
-        /* بانل التجميع الفاخر */
         .claim-panel { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); width: 100%; padding: 22px; border-radius: 24px; text-align: center; box-shadow: 0 8px 30px rgba(29, 78, 216, 0.4); cursor: pointer; margin-bottom: 25px; border: 1px solid #3b82f6; transition: 0.2s; }
         .claim-panel:active { transform: scale(0.97); box-shadow: 0 4px 15px rgba(29, 78, 216, 0.2); }
         .claim-amount { font-size: 32px; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.3); font-family: 'Courier New', Courier, monospace; letter-spacing: 0.5px; }
@@ -111,8 +107,7 @@ HTML_TEMPLATE = """
         .grid-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 18px; border-radius: 18px; text-align: center; cursor: pointer; font-weight: 700; font-size: 15px; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .grid-item:active { background: rgba(255,255,255,0.08); transform: translateY(1px); }
 
-        /* المحفظة والتبويبات المودرن */
-        .wallet-tabs { display: flex; gap: 12px; margin-bottom: 25px; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.04); }
+        .wallet-tabs { display: flex; gap: 12px; margin-bottom: 25px; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.04); }
         .w-tab { flex: 1; padding: 14px; text-align: center; border-radius: 12px; font-weight: 800; cursor: pointer; color: #64748b; transition: 0.25s; }
         .w-tab.active { background: linear-gradient(90deg, #2563eb, #1d4ed8); color: #fff; box-shadow: 0 4px 15px rgba(29, 78, 216, 0.3); }
 
@@ -123,12 +118,10 @@ HTML_TEMPLATE = """
         .btn-action { background: linear-gradient(90deg, #2563eb, #1d4ed8); color: white; border: none; padding: 16px; width: 100%; font-weight: 800; border-radius: 16px; cursor: pointer; box-shadow: 0 6px 20px rgba(29, 78, 216, 0.3); font-size: 16px; transition: 0.2s; }
         .btn-action:active { transform: scale(0.98); box-shadow: none; }
         
-        /* كروت المهام */
         .task-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 18px; border-radius: 20px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
         .task-btn { background: #2563eb; border: none; color: white; padding: 12px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.2s; }
         .task-btn:active { transform: scale(0.93); }
 
-        /* شريط التنقل السفلي العائم (Premium Floating Navbar) */
         .nav-bar { position: fixed; bottom: 20px; left: 4%; width: 92%; background: rgba(15, 22, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-around; padding: 10px 0; border-radius: 24px; box-shadow: 0 10px 35px rgba(0,0,0,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 999; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #64748b; cursor: pointer; flex: 1; font-size: 11px; font-weight: 800; transition: 0.2s; }
         .nav-item.active { color: #00f2fe; filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.5)); }
@@ -146,7 +139,6 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
-    <!-- 1. الرئيسية -->
     <div id="page-main" class="page active">
         <div class="main-container">
             <div class="reactor-core">
@@ -164,7 +156,6 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
-    <!-- 2. المعدنون -->
     <div id="page-miners" class="page">
         <p style="text-align: center; color: #94a3b8; font-size: 15px; margin-bottom: 20px;">سرعة التعدين الكلية الحالية: <span id="display-speed" style="color:#00f2fe; font-weight:900;">{{speed}}</span> H/S</p>
         {% for m_id, m in miner_types.items() %}
@@ -180,7 +171,6 @@ HTML_TEMPLATE = """
         {% endfor %}
     </div>
 
-    <!-- 3. المهام -->
     <div id="page-tasks" class="page">
         <div class="task-card">
             <div>
@@ -212,7 +202,6 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
-    <!-- 4. الأصدقاء -->
     <div id="page-friends" class="page" style="text-align:center; padding-top:15px;">
         <h3 style="color:#00f2fe; font-size: 22px;">دعوة الأصدقاء 👥</h3>
         <p style="color:#94a3b8; font-size:15px; line-height:1.6; margin-bottom: 20px;">قم بنسخ رابط الإحالة الخاص بك وتحصّل على 10% من أرباح أصدقائك فوراً عند قيامهم بالتجميع!</p>
@@ -220,14 +209,12 @@ HTML_TEMPLATE = """
         <button class="btn-action" onclick="navigator.clipboard.writeText('https://t.me/YourBotName_Bot?start={{user_id}}'); alert('تم نسخ رابط الإحالة الخاص بك بنجاح!');">نسخ الرابط الفريد</button>
     </div>
 
-    <!-- 5. المحفظة -->
     <div id="page-wallet" class="page">
         <div class="wallet-tabs">
             <div id="tab-deposit" class="w-tab active" onclick="toggleWalletSection('deposit')">💳 إيداع وشحن</div>
             <div id="tab-withdraw" class="w-tab" onclick="toggleWalletSection('withdraw')">💸 سحب الأرباح</div>
         </div>
 
-        <!-- قسم الإيداع -->
         <div id="section-deposit" style="background: rgba(20, 28, 47, 0.4); padding:22px; border-radius:24px; border:1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);">
             <h3 style="margin-top:0; text-align:center; color:#00f2fe;">شحن الحساب والإيداع</h3>
             <p style="color:#94a3b8; font-size:14px; text-align:center; margin-bottom:20px;">قم بالتحويل للمحفظة بالأسفل ثم اكتب المبلغ واضغط تأكيد المعاملة.</p>
@@ -253,7 +240,6 @@ HTML_TEMPLATE = """
             </form>
         </div>
 
-        <!-- قسم السحب (الحد الأدنى 10$) -->
         <div id="section-withdraw" style="background: rgba(20, 28, 47, 0.4); padding:22px; border-radius:24px; border:1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); display:none;">
             <h3 style="margin-top:0; text-align:center; color:#10b981;">سحب الأموال والأرباح</h3>
             <p style="color:#94a3b8; font-size:14px; text-align:center; margin-bottom:20px;">اسحب أرباحك مباشرة إلى محفظتك الشخصية بكل سهولة وأمان.</p>
@@ -279,7 +265,6 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
-    <!-- شريط التنقل السفلي الفاخر والعائم -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchPage('main', this)"><span class="nav-icon">🏠</span>الرئيسية</div>
         <div class="nav-item" onclick="switchPage('miners', this)"><span class="nav-icon">⛏️</span>المعدنون</div>
@@ -353,7 +338,7 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# --- ممرّات التطبيق (Routes) ---
+# --- ممرّات التطبيق المعززة بحماية ذكية ضد الانهيار ---
 @app.route('/')
 def index():
     uid = request.args.get('id', '1609075265')
@@ -408,25 +393,37 @@ def deposit():
     currency = request.form['currency']
     amount = request.form.get('amount', '10')
     
-    markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(
-        telebot.types.InlineKeyboardButton(f"✅ قبول وإيداع {amount}$", callback_data=f"approve_{uid}_{amount}"),
-        telebot.types.InlineKeyboardButton("❌ رفض الطلب", callback_data=f"reject_{uid}")
-    )
-    
-    text = f"📥 **طلب إيداع جديد (تأكيد يدوي)**\n\n👤 معرف المستخدم: `{uid}`\n🪙 العملة المستخدمة: `{currency}`\n💰 المبلغ المذكور: `{amount}$`"
-    bot.send_message(PAYMENT_CHANNEL_ID, text, reply_markup=markup, parse_mode="Markdown")
-    
-    return """
-    <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px; background-image: radial-gradient(circle at 50% 0%, #111827 0%, #05070f 70%);">
-        <div style="background: rgba(20, 28, 47, 0.6); backdrop-filter: blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid rgba(255,255,255,0.06); box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-            <h2 style="color:#f59e0b; margin-bottom:15px; font-weight:900;">⏳ معالجة الطلب الآمن</h2>
-            <p style="color:#94a3b8; line-height:1.7; font-size:15px;">لقد تم إرسال تفاصيل معاملتك المالية للتحقق اليدوي بنجاح. سيتم مراجعة طلبك وإضافة الرصيد لحسابك بشكل تلقائي وفوري فور التأكيد.</p>
-            <br>
-            <a href="javascript:history.back()" style="display:inline-block; background: linear-gradient(90deg, #2563eb, #1d4ed8); color:#fff; text-decoration:none; padding:14px 30px; border-radius:12px; font-weight:bold; font-size:14px; box-shadow:0 4px 15px rgba(29,78,216,0.3);">العودة للتطبيق</a>
-        </div>
-    </body>
-    """
+    try:
+        markup = telebot.types.InlineKeyboardMarkup()
+        markup.add(
+            telebot.types.InlineKeyboardButton(f"✅ قبول وإيداع {amount}$", callback_data=f"approve_{uid}_{amount}"),
+            telebot.types.InlineKeyboardButton("❌ رفض الطلب", callback_data=f"reject_{uid}")
+        )
+        
+        text = f"📥 **طلب إيداع جديد (تأكيد يدوي)**\n\n👤 معرف المستخدم: `{uid}`\n🪙 العملة المستخدمة: `{currency}`\n💰 المبلغ المذكور: `{amount}$`"
+        bot.send_message(PAYMENT_CHANNEL_ID, text, reply_markup=markup, parse_mode="Markdown")
+        
+        return """
+        <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
+            <div style="background: rgba(20, 28, 47, 0.6); backdrop-filter: blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid rgba(255,255,255,0.06); box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                <h2 style="color:#f59e0b; margin-bottom:15px; font-weight:900;">⏳ معالجة الطلب الآمن</h2>
+                <p style="color:#94a3b8; line-height:1.7; font-size:15px;">لقد تم إرسال تفاصيل معاملتك المالية للتحقق اليدوي بنجاح. سيتم مراجعة طلبك وإضافة الرصيد لحسابك بشكل تلقائي وفوري فور التأكيد.</p>
+                <br>
+                <a href="javascript:history.back()" style="display:inline-block; background: linear-gradient(90deg, #2563eb, #1d4ed8); color:#fff; text-decoration:none; padding:14px 30px; border-radius:12px; font-weight:bold; font-size:14px; box-shadow:0 4px 15px rgba(29,78,216,0.3);">العودة للتطبيق</a>
+            </div>
+        </body>
+        """
+    except Exception as e:
+        return f"""
+        <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:80px;">
+            <div style="background:rgba(20,28,47,0.6); backdrop-filter:blur(15px); max-width:480px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #ef4444; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                <h2 style="color:#ef4444; font-weight:900; margin-bottom:15px;">❌ خطأ في إعدادات السيرفر والإرساال</h2>
+                <p style="color:#94a3b8; line-height:1.7; font-size:15px;">فشل السيرفر في إرسال إشعار الإيداع إلى القناة الإدارية الخاصة بك.</p>
+                <br>
+                <a href="javascript:history.back()" style="display:inline-block; background:#ef4444; color:#fff; text-decoration:none; padding:12px 25px; border-radius:12px; font-weight:bold;">العودة وتعديل القناة</a>
+            </div>
+        </body>
+        """
 
 @app.route('/withdraw', methods=['POST'])
 def withdraw():
@@ -438,106 +435,99 @@ def withdraw():
     data = load_data()
     user = data['users'].get(uid)
     
-    if not user:
-        return "خطأ في بيانات العميل"
+    if not user: return "خطأ في بيانات العميل"
+    if user["balance"] < amount: return "رصيد غير كافٍ"
+    
+    try:
+        user["balance"] = round(user["balance"] - amount, 4)
+        save_data(data)
         
-    if amount < 10:
-        return f"""
-        <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
-            <div style="background:rgba(20,28,47,0.6); backdrop-filter:blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #ef4444; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-                <h2 style="color:#ef4444; margin-bottom:15px; font-weight:900;">❌ حماية السيرفر النشطة</h2>
-                <p style="color:#94a3b8; line-height:1.7; font-size:15px;">تم إحباط المحاولة. الحد الأدنى المسموح به لعمليات سحب الأرباح هو 10$ كاش.</p>
-                <br>
-                <a href="javascript:history.back()" style="display:inline-block; background:#ef4444; color:#fff; text-decoration:none; padding:12px 25px; border-radius:12px; font-weight:bold;">العودة للخلف</a>
-            </div>
-        </body>
-        """
-    
-    if user["balance"] < amount:
-        return f"""
-        <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px;">
-            <div style="background:rgba(20,28,47,0.6); backdrop-filter:blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #ef4444; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-                <h2 style="color:#ef4444; margin-bottom:15px; font-weight:900;">❌ رصيد غير كافٍ</h2>
-                <p style="color:#94a3b8; line-height:1.7; font-size:15px;">رصيدك الكاش المتاح حالياً ({user['balance']}$) لا يغطي القيمة المطلوبة للسحب ({amount}$).</p>
-                <br>
-                <a href="javascript:history.back()" style="display:inline-block; background:#ef4444; color:#fff; text-decoration:none; padding:12px 25px; border-radius:12px; font-weight:bold;">تعديل المبلغ والعودة</a>
-            </div>
-        </body>
-        """
-    
-    user["balance"] = round(user["balance"] - amount, 4)
-    save_data(data)
-    
-    markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(
-        telebot.types.InlineKeyboardButton(f"✅ تم الإرسال والموافقة", callback_data=f"wapprove_{uid}_{amount}"),
-        telebot.types.InlineKeyboardButton("❌ رفض وإرجاع الرصيد", callback_data=f"wreject_{uid}_{amount}")
-    )
-    
-    text = f"💸 **طلب سحب جديد قيد التنفيذ**\n\n👤 معرف العميل: `{uid}`\n🪙 العملة والشبكة: `{currency}`\n📥 عنوان محفظة العميل: `{user_address}`\n💰 القيمة المطلوبة: `{amount}$`"
-    bot.send_message(WITHDRAWAL_CHANNEL_ID, text, reply_markup=markup, parse_mode="Markdown")
-    
-    return """
-    <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:100px; background-image: radial-gradient(circle at 50% 0%, #111827 0%, #05070f 70%);">
-        <div style="background: rgba(20, 28, 47, 0.6); backdrop-filter: blur(15px); max-width:400px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #10b981; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-            <h2 style="color:#10b981; margin-bottom:15px; font-weight:900;">⏳ طلبك قيد التحويل والمعالجة</h2>
-            <p style="color:#94a3b8; line-height:1.7; font-size:15px;">تم حجز المعاملة وخصمها بنجاح وأمان. الإدارة تقوم حالياً بمراجعة طلبك وإرسال الأموال يدويًا إلى عنوان محفظتك الشخصية المرفق.</p>
-            <br>
-            <a href="javascript:history.back()" style="display:inline-block; background: linear-gradient(90deg, #10b981, #059669); color:#fff; text-decoration:none; padding:14px 30px; border-radius:12px; font-weight:bold; font-size:14px; box-shadow:0 4px 15px rgba(16,185,129,0.3);">العودة للتطبيق</a>
-        </div>
-    </body>
-    """
+        markup = telebot.types.InlineKeyboardMarkup()
+        markup.add(
+            telebot.types.InlineKeyboardButton(f"✅ تم الإرسال والموافقة", callback_data=f"wapprove_{uid}_{amount}"),
+            telebot.types.InlineKeyboardButton("❌ رفض وإرجاع الرصيد", callback_data=f"wreject_{uid}_{amount}")
+        )
+        
+        text = f"💸 **طلب سحب جديد قيد التنفيذ**\n\n👤 معرف العميل: `{uid}`\n🪙 العملة والشبكة: `{currency}`\n📥 عنوان محفظة العميل: `{user_address}`\n💰 القيمة المطلوبة: `{amount}$`"
+        bot.send_message(WITHDRAWAL_CHANNEL_ID, text, reply_markup=markup, parse_mode="Markdown")
+        
+        return "تم تسجيل طلب السحب بنجاح جاري المعالجة."
+    except Exception as e:
+        user["balance"] = round(user["balance"] + amount, 4)
+        save_data(data)
+        return "فشل السحب، تأكد من صلاحيات البوت في القناة."
 
-# --- كود تحكم البوت والترحيب ---
-@bot.message_handler(commands=['start'])
-def start(m):
-    uid = str(m.from_user.id)
-    url = f"https://apexwarlords-production.up.railway.app?id={uid}"
-    
-    markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(telebot.types.InlineKeyboardButton("Launch Apex Mining 🚀", web_app=telebot.types.WebAppInfo(url=url)))
-    
-    welcome_text = (
-        "🎯 Welcome to **Apex Mining Premium**!\n\n"
-        "Tap the button below to launch the Mini App, purchase your mining rigs, and start generating live profits instantly."
-    )
-    bot.send_message(m.chat.id, welcome_text, reply_markup=markup, parse_mode="Markdown")
-
+# --- 🔐 معالج أزرار القنوات المتطور والخالي من التعليق ---
 @bot.callback_query_handler(func=lambda call: True)
 def handle_admin_buttons(call):
-    if call.from_user.id != OWNER_ID: return
+    # 1. فك تعليق زرار التليجرام فوراً وبشكل لحظي من السيرفر
+    try:
+        bot.answer_callback_query(call.id)
+    except Exception:
+        pass
+        
+    # 2. التحقق الذكي من رتبة وصلاحية الشخص الضاغط على الزرار
+    if call.from_user.id != OWNER_ID:
+        try:
+            bot.send_message(call.message.chat.id, f"⚠️ تنبيه حماية: الحساب الخاص بك ليس المالك المعين للبوت!\n👤 الـ ID الخاص بك: `{call.from_user.id}`\n\n💡 إذا كنت أنت المالك، انسخ هذا الرقم واستبدله بالـ `OWNER_ID` في سطر الكود رقم 9.")
+        except Exception:
+            pass
+        return
+        
     parts = call.data.split("_")
     action = parts[0]
     uid = parts[1]
     
     data = load_data()
-    if uid not in data['users']: return
+    if uid not in data['users']:
+        try: bot.send_message(call.message.chat.id, "❌ خطأ: حساب المستخدم هذا لم يعد متواجداً في ملف الـ JSON.")
+        except Exception: pass
+        return
 
-    if action == "approve":
-        amount = float(parts[2])
-        data['users'][uid]['balance'] = round(data['users'][uid]['balance'] + amount, 4)
-        save_data(data)
-        bot.send_message(uid, f"🎉 تهانينا! تمت الموافقة على إيداعك وتمت إضافة **{amount}$** إلى رصيدك الكاش بنجاح.")
-        bot.edit_message_text(call.message.text + f"\n\n🟢 **الحالة: تم قبول الإيداع وإضافة {amount}$**", call.message.chat.id, call.message.message_id)
-        
-    elif action == "reject":
-        bot.send_message(uid, "❌ تم رفض طلب الإيداع الخاص بك من قِبل الإدارة، يرجى مراجعة الدعم وتأكيد بيانات التحويل.")
-        bot.edit_message_text(call.message.text + "\n\n🔴 **الحالة: تم رفض الطلب**", call.message.chat.id, call.message.message_id)
+    try:
+        if action == "approve":
+            amount = float(parts[2])
+            data['users'][uid]['balance'] = round(data['users'][uid]['balance'] + amount, 4)
+            save_data(data)
+            
+            try: bot.send_message(uid, f"🎉 تهانينا! تمت الموافقة على إيداعك وتمت إضافة **{amount}$** إلى رصيدك الكاش بنجاح.")
+            except Exception: pass
+            
+            bot.edit_message_text(call.message.text + f"\n\n🟢 **الحالة: تم قبول الإيداع وإضافة {amount}$**", call.message.chat.id, call.message.message_id)
+            
+        elif action == "reject":
+            try: bot.send_message(uid, "❌ تم رفض طلب الإيداع الخاص بك من قِبل الإدارة، يرجى مراجعة الدعم وتأكيد بيانات التحويل.")
+            except Exception: pass
+            bot.edit_message_text(call.message.text + "\n\n🔴 **الحالة: تم رفض الطلب**", call.message.chat.id, call.message.message_id)
 
-    elif action == "wapprove":
-        amount = float(parts[2])
-        bot.send_message(uid, f"✅ تم تحويل وإرسال مبلغ السحب بقيمة **{amount}$** لمحفظتك بنجاح برقم المعاملة الخاص بك!")
-        bot.edit_message_text(call.message.text + f"\n\n🟢 **الحالة: تم التحويل بنجاح للمستخدم والموافقة**", call.message.chat.id, call.message.message_id)
-        
-    elif action == "wreject":
-        amount = float(parts[2])
-        data['users'][uid]['balance'] = round(data['users'][uid]['balance'] + amount, 4)
-        save_data(data)
-        bot.send_message(uid, f"❌ تم رفض طلب السحب الخاص بك بقيمة **{amount}$** من قِبل الإدارة وتم إرجاع المبلغ كاملاً لرصيدك الكاش.")
-        bot.edit_message_text(call.message.text + f"\n\n🔴 **الحالة: تم رفض السحب وإعادة الأموال للحساب**", call.message.chat.id, call.message.message_id)
+        elif action == "wapprove":
+            amount = float(parts[2])
+            try: bot.send_message(uid, f"✅ تم تحويل وإرسال مبلغ السحب بقيمة **{amount}$** لمحفظتك بنجاح برقم المعاملة الخاص بك!")
+            except Exception: pass
+            bot.edit_message_text(call.message.text + f"\n\n🟢 **الحالة: تم التحويل بنجاح للمستخدم والموافقة**", call.message.chat.id, call.message.message_id)
+            
+        elif action == "wreject":
+            amount = float(parts[2])
+            data['users'][uid]['balance'] = round(data['users'][uid]['balance'] + amount, 4)
+            save_data(data)
+            try: bot.send_message(uid, f"❌ تم رفض طلب السحب الخاص بك بقيمة **{amount}$** من قِبل الإدارة وتم إرجاع المبلغ كاملاً لرصيدك الكاش.")
+            except Exception: pass
+            bot.edit_message_text(call.message.text + f"\n\n🔴 **الحالة: تم رفض السحب وإعادة الأموال للحساب**", call.message.chat.id, call.message.message_id)
+            
+    except Exception as e:
+        try: bot.send_message(call.message.chat.id, f"❌ حدث خطأ برمجي داخلي: {str(e)}")
+        except Exception: pass
 
-# تشغيل البوت في الخلفية
-threading.Thread(target=lambda: bot.infinity_polling()).start()
+@bot.message_handler(commands=['start'])
+def start(m):
+    uid = str(m.from_user.id)
+    url = f"https://apexwarlords-production.up.railway.app?id={uid}"
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(telebot.types.InlineKeyboardButton("Launch Apex Mining 🚀", web_app=telebot.types.WebAppInfo(url=url)))
+    bot.send_message(m.chat.id, "🎯 Welcome to **Apex Mining Premium**!", reply_markup=markup, parse_mode="Markdown")
+
+# تشغيل الـ Polling الآمن في الخلفية
+threading.Thread(target=lambda: bot.infinity_polling(timeout=10, long_polling_timeout=5)).start()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
