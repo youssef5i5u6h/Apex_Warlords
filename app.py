@@ -14,12 +14,12 @@ data_lock = threading.Lock()
 TOKEN = "8895527275:AAFiM1ZbdyaTDuMs_zSXOGV6Lkyhqk_HdoY"
 OWNER_ID = 1609075265  
 
-# 🌐 رابط موقعك الفعلي والنهائي على ريلواي لعمل الإحالات بشكل حقيقي
+# 🌐 رابط موقعك الفعلي والنهائي على ريلواي
 WEB_APP_URL = "https://Apexwarlords-production.up.railway.app" 
 
 bot = telebot.TeleBot(TOKEN)
 
-# 📁 مسار الحفظ الآمن لعدم فقدان البيانات عند التحديث في ريلواي
+# 📁 مسار الحفظ الآمن للبيانات
 DATA_DIR = '/app/data' if os.path.exists('/app/data') else '.'
 DATA_FILE = os.path.join(DATA_DIR, 'data.json')
 
@@ -52,16 +52,13 @@ TASKS = {
     "task3": {"title": "متابعة حساب التمويل الخاص بنا 💵", "reward": 0.20, "link": "https://t.me/Apex_payment1"}
 }
 
-# --- 🗄️ إدارة الملفات وقاعدة البيانات ---
 def load_data():
     if not os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'w') as f: json.dump({"users": {}}, f)
         return {"users": {}}
     with open(DATA_FILE, 'r') as f: 
-        try:
-            return json.load(f)
-        except json.JSONDecodeError:
-            return {"users": {}}
+        try: return json.load(f)
+        except json.JSONDecodeError: return {"users": {}}
 
 def save_data(data):
     with open(DATA_FILE, 'w') as f: json.dump(data, f, indent=4)
@@ -69,7 +66,7 @@ def save_data(data):
 def update_mining(user):
     now = time.time()
     last = user.get("last_calc", now)
-    total_speed = 0.0100  # السرعة المجانية الافتراضية
+    total_speed = 0.0100  
     if "miners" in user and isinstance(user["miners"], dict):
         for m_id, count in user["miners"].items():
             if m_id in MINER_TYPES:
@@ -89,47 +86,55 @@ HTML_TEMPLATE = """
     <title>Apex Mining Premium</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #05070f; color: #f8fafc; margin: 0; padding-bottom: 120px; overflow-x: hidden; background-image: radial-gradient(circle at 50% 0%, #111827 0%, #05070f 70%); }
-        .top-bar { display: flex; flex-direction: column; align-items: center; padding: 18px 15px; background: rgba(10, 15, 30, 0.7); border-bottom: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 1000; }
-        .logo-area { font-size: 26px; font-weight: 900; background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; text-shadow: 0 0 20px rgba(0, 242, 254, 0.3); margin-bottom: 15px; }
+        body { background: #030712; color: #f8fafc; margin: 0; padding-bottom: 120px; overflow-x: hidden; background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #030712 70%); }
+        .top-bar { display: flex; flex-direction: column; align-items: center; padding: 18px 15px; background: rgba(17, 24, 39, 0.7); border-bottom: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(24px); position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
+        .logo-area { font-size: 28px; font-weight: 900; background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; text-shadow: 0 0 25px rgba(56, 189, 248, 0.4); margin-bottom: 15px; }
         .stats-row { display: flex; width: 100%; justify-content: space-between; gap: 14px; }
-        .stat-box { flex: 1; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 800; box-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: 0.3s; }
-        .stat-box.cash { color: #10b981; border-color: rgba(16, 185, 129, 0.25); background: linear-gradient(180deg, rgba(16,185,129,0.05) 0%, rgba(0,0,0,0) 100%); }
-        .stat-box.gems { color: #00f2fe; border-color: rgba(0, 242, 254, 0.25); background: linear-gradient(180deg, rgba(0,242,254,0.05) 0%, rgba(0,0,0,0) 100%); }
+        .stat-box { flex: 1; background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; padding: 14px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 800; box-shadow: 0 8px 32px rgba(0,0,0,0.3); transition: 0.3s; }
+        .stat-box.cash { color: #10b981; border-color: rgba(16, 185, 129, 0.3); text-shadow: 0 0 10px rgba(16,185,129,0.2); }
+        .stat-box.gems { color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); text-shadow: 0 0 10px rgba(56,189,248,0.2); }
         
-        .page { display: none; padding: 20px 15px; animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+        .page { display: none; padding: 20px 15px; animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .page.active { display: block; }
         
-        .miner-card { background: linear-gradient(145deg, rgba(20, 28, 47, 0.9) 0%, rgba(11, 16, 28, 0.9) 100%); border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); padding: 18px; margin-bottom: 16px; position: relative; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.4); overflow: hidden; border-left: 5px solid var(--bar-color); }
+        .miner-card { background: linear-gradient(145deg, rgba(31, 41, 55, 0.7) 0%, rgba(17, 24, 39, 0.9) 100%); border-radius: 24px; border: 1px solid rgba(255,255,255,0.06); padding: 20px; margin-bottom: 16px; position: relative; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 12px 40px rgba(0,0,0,0.5); overflow: hidden; border-left: 5px solid var(--bar-color); }
         .miner-info { display: flex; flex-direction: column; gap: 4px; }
         .miner-name { font-size: 19px; font-weight: 800; color: #fff; }
-        .miner-meta { font-size: 12px; color: #94a3b8; }
-        .miner-owned { font-size: 12px; color: #10b981; font-weight: bold; }
-        .btn-buy { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #05070f; border: none; font-weight: 900; padding: 12px 20px; border-radius: 14px; cursor: pointer; box-shadow: 0 6px 20px rgba(217, 119, 6, 0.3); font-size: 14px; transition: 0.2s; }
+        .miner-meta { font-size: 12px; color: #9ca3af; }
+        .miner-owned { font-size: 13px; color: #10b981; font-weight: bold; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 20px; width: fit-content; margin-top: 4px; }
+        .btn-buy { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #030712; border: none; font-weight: 900; padding: 12px 22px; border-radius: 16px; cursor: pointer; box-shadow: 0 6px 20px rgba(245, 158, 10, 0.3); font-size: 14px; transition: 0.2s; }
         .btn-buy:active { transform: scale(0.95); }
         
         .main-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .reactor-core { width: 200px; height: 200px; position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; margin-top: 15px; }
-        .reactor-sphere { width: 130px; height: 130px; background: radial-gradient(circle, #00f2fe 0%, #1d4ed8 100%); border-radius: 50%; box-shadow: 0 0 50px rgba(0, 242, 254, 0.6); animation: pulse 2s infinite alternate; }
-        .reactor-outer-ring { position: absolute; width: 170px; height: 170px; border: 2px dashed rgba(0, 242, 254, 0.3); border-radius: 50%; animation: rotateRing 8s linear infinite; }
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+        .reactor-core { width: 220px; height: 220px; position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; margin-top: 15px; }
+        .reactor-sphere { width: 140px; height: 140px; background: radial-gradient(circle, #38bdf8 0%, #4f46e5 100%); border-radius: 50%; box-shadow: 0 0 60px rgba(56, 189, 248, 0.6); animation: pulse 2s infinite alternate; }
+        .reactor-outer-ring { position: absolute; width: 190px; height: 190px; border: 2px dashed rgba(56, 189, 248, 0.4); border-radius: 50%; animation: rotateRing 10s linear infinite; }
+        @keyframes pulse { from { transform: scale(1); box-shadow: 0 0 40px rgba(56, 189, 248, 0.5); } to { transform: scale(1.08); box-shadow: 0 0 70px rgba(56, 189, 248, 0.8); } }
         @keyframes rotateRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
-        .claim-panel { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); width: 100%; padding: 22px; border-radius: 24px; text-align: center; box-shadow: 0 8px 30px rgba(29, 78, 216, 0.4); cursor: pointer; margin-bottom: 25px; transition: 0.2s; }
+        .claim-panel { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); width: 100%; padding: 25px; border-radius: 28px; text-align: center; box-shadow: 0 10px 35px rgba(29, 78, 216, 0.4); cursor: pointer; margin-bottom: 25px; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
         .claim-panel:active { transform: scale(0.98); }
         .grid-menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; }
-        .grid-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 18px; border-radius: 18px; text-align: center; cursor: pointer; font-weight: 700; transition: 0.2s; }
-        .grid-item:active { transform: scale(0.95); background: rgba(255,255,255,0.07); }
+        .grid-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 18px; border-radius: 20px; text-align: center; cursor: pointer; font-weight: 700; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .grid-item:active { transform: scale(0.95); background: rgba(255,255,255,0.06); }
         
-        .section-card { background: rgba(20, 28, 47, 0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 22px; padding: 20px; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; margin-top: 8px; margin-bottom: 16px; text-align: right; font-weight: 600; }
-        .btn-action { width: 100%; background: #2563eb; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 15px; }
+        .section-card { background: linear-gradient(180deg, rgba(31,41,55,0.5) 0%, rgba(17,24,39,0.5) 100%); border: 1px solid rgba(255,255,255,0.07); border-radius: 26px; padding: 22px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        input, select { width: 100%; padding: 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; color: white; margin-top: 8px; margin-bottom: 18px; text-align: right; font-weight: 600; font-size: 15px; transition: 0.3s; }
+        input:focus, select:focus { border-color: #38bdf8; outline: none; box-shadow: 0 0 12px rgba(56,189,248,0.2); }
+        label { font-size: 14px; font-weight: 700; color: #9ca3af; display: block; margin-right: 4px; }
+        .btn-action { width: 100%; background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; font-size: 16px; box-shadow: 0 6px 20px rgba(37,99,235,0.3); transition: 0.2s; }
+        .btn-action:active { transform: scale(0.97); }
         
-        .nav-bar { position: fixed; bottom: 20px; left: 4%; width: 92%; background: rgba(15, 22, 42, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-around; padding: 12px 0; border-radius: 24px; backdrop-filter: blur(20px); z-index: 999; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #64748b; cursor: pointer; font-size: 12px; font-weight: 700; gap: 4px; }
-        .nav-item.active { color: #00f2fe; text-shadow: 0 0 10px rgba(0,242,254,0.3); }
+        .address-box { background: rgba(0, 0, 0, 0.5); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 14px; padding: 14px; margin-bottom: 18px; text-align: center; animation: fadeIn 0.3s ease; }
+        .btn-copy { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 8px; transition: 0.2s; }
+        .btn-copy:active { transform: scale(0.92); }
+
+        .nav-bar { position: fixed; bottom: 20px; left: 4%; width: 92%; background: rgba(17, 24, 39, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-around; padding: 14px 0; border-radius: 26px; backdrop-filter: blur(20px); z-index: 999; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #6b7280; cursor: pointer; font-size: 12px; font-weight: 700; gap: 5px; transition: 0.3s; }
+        .nav-item.active { color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.4); transform: translateY(-2px); }
         
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -148,12 +153,12 @@ HTML_TEMPLATE = """
                 <div class="reactor-sphere"></div>
             </div>
             <div class="claim-panel" onclick="claimMined()">
-                <div style="font-size: 32px; font-weight: 900; color: #fff;"><span id="display-mined">0.000000</span></div>
-                <div style="font-size: 14px; color: #93c5fd; margin-top: 6px;">اضغط لتجميع الأرباح المتولدة 🚀</div>
+                <div style="font-size: 34px; font-weight: 900; color: #fff;"><span id="display-mined">0.000000</span></div>
+                <div style="font-size: 14px; color: #93c5fd; margin-top: 6px; font-weight: 700; letter-spacing: 0.5px;">اضغط لتجميع الأرباح المتولدة 🚀</div>
             </div>
             <div class="grid-menu">
                 {% if user_id == '1609075265' %}
-                <div class="grid-item" onclick="dailyReward()" style="background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.2); color: #f59e0b;">🎁 مكافأة المالك</div>
+                <div class="grid-item" onclick="dailyReward()" style="background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.25); color: #fbbf24;">🎁 مكافأة المالك</div>
                 {% endif %}
                 <div class="grid-item" onclick="window.open('{{news_link}}')">📢 قناة الأخبار</div>
             </div>
@@ -161,11 +166,11 @@ HTML_TEMPLATE = """
     </div>
 
     <div id="page-store" class="page">
-        <h3 style="margin-top: 0; margin-bottom: 20px; text-align: center; color: #00f2fe;">متجر أجهزة التعدين السحابي</h3>
+        <h3 style="margin-top: 0; margin-bottom: 22px; text-align: center; color: #38bdf8; font-weight: 900; font-size: 22px;">متجر أجهزة التعدين السحابي</h3>
         {% for m_id, m in miner_types.items() %}
         <div class="miner-card" style="--bar-color: {{m.color}}">
             <div class="miner-info">
-                <span class="miner-name">{{m.name}} <small style="font-size: 10px; color: {{m.color}}">[{{m.tier}}]</small></span>
+                <span class="miner-name">{{m.name}} <small style="font-size: 10px; color: {{m.color}}; font-weight: 900;">[{{m.tier}}]</small></span>
                 <span class="miner-meta">السعر: {{m.cost}}$ | الإنتاج: +{{m.speed}}/س</span>
                 <span class="miner-owned">العدد المملوك: {{user.miners.get(m_id, 0)}}</span>
             </div>
@@ -176,57 +181,79 @@ HTML_TEMPLATE = """
 
     <div id="page-tasks" class="page">
         <div class="section-card">
-            <h4 style="margin-top: 0; color: #00f2fe; margin-bottom: 8px;">🔗 نظام كسب الإحالات</h4>
-            <p style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">شارك الرابط مع أصدقائك واحصل على مكافأة فورية بقيمة <strong style="color: #10b981;">0.05$</strong> عن كل شخص يسجل من خلالك!</p>
+            <h4 style="margin-top: 0; color: #38bdf8; margin-bottom: 8px; font-size: 18px;">🔗 نظام كسب الإحالات</h4>
+            <p style="font-size: 13px; color: #9ca3af; margin-bottom: 14px; line-height: 1.5;">شارك الرابط مع أصدقائك واحصل على مكافأة فورية بقيمة <strong style="color: #10b981;">0.05$</strong> عن كل شخص يسجل من خلالك!</p>
             <input type="text" id="ref-url" value="{{invite_url}}" readonly style="text-align: left; font-family: monospace; font-size: 12px; background: rgba(0,0,0,0.5);">
             <button class="btn-action" onclick="copyRefLink()">نسخ رابط الإحالة</button>
-            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-top: 12px; font-weight: bold;">
+            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-top: 14px; font-weight: bold; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px;">
                 <span>إجمالي الإحالات: 👤 {{user.get('ref_count', 0)}}</span>
                 <span style="color: #10b981;">الأرباح: {{user.get('ref_earned', 0.0)}}$</span>
             </div>
         </div>
 
-        <h4 style="color: #fff; margin-bottom: 12px;">المهام الحالية المدعومة:</h4>
+        <h4 style="color: #fff; margin-bottom: 12px; margin-right: 4px;">المهام الحالية المدعومة:</h4>
         {% for t_id, t in tasks_dict.items() %}
-        <div class="miner-card" style="--bar-color: #2563eb; padding: 14px 18px;">
+        <div class="miner-card" style="--bar-color: #4f46e5; padding: 16px 20px;">
             <div class="miner-info">
                 <span style="font-weight: bold; font-size: 15px;">{{t.title}}</span>
-                <span style="font-size: 12px; color: #10b981;">المكافأة: +{{t.reward}}$</span>
+                <span style="font-size: 12px; color: #10b981; font-weight: bold; margin-top: 2px;">المكافأة: +{{t.reward}}$</span>
             </div>
             {% if t_id in user.get('completed_tasks', []) %}
-            <button class="btn-buy" disabled style="background: #334155; color: #94a3b8; box-shadow: none;">مكتملة ✓</button>
+            <button class="btn-buy" disabled style="background: #374151; color: #9ca3af; box-shadow: none;">مكتملة ✓</button>
             {% else %}
-            <button class="btn-buy" style="background: #2563eb; color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3);" onclick="startTask('{{t_id}}', '{{t.link}}')">ابدأ</button>
+            <button class="btn-buy" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.3);" onclick="startTask('{{t_id}}', '{{t.link}}')">ابدأ</button>
             {% endif %}
         </div>
         {% endfor %}
     </div>
 
     <div id="page-wallet" class="page">
-        <div class="section-card">
-            <h4 style="margin-top: 0; color: #10b981; margin-bottom: 8px;">📥 شحن الحساب (إيداع للرصيد)</h4>
-            <p style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">لشراء الكروت، قم بتحويل القيمة المطلوبة إلى أحد العناوين الآتية ثم تواصل مع الإدارة لشحن حسابك:</p>
-            {% for w_name, w_addr in wallets.items() %}
-            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 11px; border: 1px solid rgba(255,255,255,0.03);">
-                <strong style="color: #f59e0b;">{{w_name}}:</strong> <span style="word-break: break-all; color: #e2e8f0;">{{w_addr}}</span>
+        <div class="section-card" style="border-color: rgba(16, 185, 129, 0.2);">
+            <h4 style="margin-top: 0; color: #10b981; margin-bottom: 8px; font-size: 18px;">📥 شحن الرصيد (Deposit)</h4>
+            <p style="font-size: 12px; color: #9ca3af; margin-bottom: 14px; line-height: 1.5;">قم باختيار الشبكة لإظهار عنوان المحفظة الخاص بها بدقة، ثم أرسل إثبات التحويل لتفعيل رصيدك.</p>
+            
+            <label>اختر شبكة الإيداع المتوفرة:</label>
+            <select id="deposit-method" onchange="onDepositNetworkChange()">
+                <option value="">-- اضغط للاختيار وإظهار العنوان --</option>
+                <option value="USDT_BEP20">USDT (BEP-20)</option>
+                <option value="USDT_TRC20">USDT (TRC-20)</option>
+                <option value="TON">TON (Telegram Network)</option>
+            </select>
+
+            <div id="deposit-address-container" class="address-box" style="display: none;">
+                <span style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 4px;">عنوان التحويل الخاص بك:</span>
+                <strong id="deposit-address-text" style="word-break: break-all; color: #fff; font-size: 13px; font-family: monospace;"></strong>
+                <br>
+                <button class="btn-copy" onclick="copyDepositAddress()">نسخ العنوان 📋</button>
             </div>
-            {% endfor %}
+
+            <label>المبلغ الذي قمت بتحويله ($):</label>
+            <input type="number" id="deposit-amount" placeholder="أدخل القيمة المحولة بدقة">
+
+            <label>اسم المستخدم أو هاش العملية (TxID):</label>
+            <input type="text" id="deposit-txid" placeholder="ضع هنا ما يثبت إرسالك للأموال">
+            
+            <button class="btn-action" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); box-shadow: 0 6px 20px rgba(16,185,129,0.3);" onclick="submitDeposit()">تأكيد وإرسال إثبات الإيداع</button>
         </div>
 
-        <div class="section-card">
-            <h4 style="margin-top: 0; color: #ef4444; margin-bottom: 8px;">📤 تقديم طلب سحب فوري</h4>
+        <div class="section-card" style="border-color: rgba(239, 68, 68, 0.2);">
+            <h4 style="margin-top: 0; color: #ef4444; margin-bottom: 8px; font-size: 18px;">📤 طلب سحب فوري (Withdraw)</h4>
+            <p style="font-size: 12px; color: #9ca3af; margin-bottom: 14px; line-height: 1.5;">اسحب أرباحك مباشرة إلى محفظتك الشخصية بكل أمان وسهولة فور بلوغ الحد الأدنى.</p>
+            
             <label>اختر شبكة السحب:</label>
             <select id="withdraw-method">
-                {% for w_name in wallets.keys() %}<option value="{{w_name}}">{{w_name}}</option>{% endfor %}
+                <option value="USDT_BEP20">USDT (BEP-20)</option>
+                <option value="USDT_TRC20">USDT (TRC-20)</option>
+                <option value="TON">TON (Telegram Network)</option>
             </select>
             
-            <label>عنوان محفظة الاستلام:</label>
+            <label>عنوان محفظة الاستلام الخاصة بك:</label>
             <input type="text" id="withdraw-address" placeholder="ضع عنوان محفظتك هنا بعناية">
             
             <label>المبلغ المراد سحبه ($):</label>
-            <input type="number" id="withdraw-amount" placeholder="الحد الأدنى للسحب هو 5$">
+            <input type="number" id="withdraw-amount" placeholder="الحد الأدنى لتقديم السحب هو 5$">
             
-            <button class="btn-action" style="background: #ef4444;" onclick="submitWithdrawal()">تقديم طلب السحب</button>
+            <button class="btn-action" style="background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 6px 20px rgba(239,68,68,0.3);" onclick="submitWithdrawal()">تقديم طلب السحب الرسمي</button>
         </div>
     </div>
 
@@ -234,14 +261,19 @@ HTML_TEMPLATE = """
         <div class="nav-item active" onclick="switchPage('main', this)">🏠 <span>الرئيسية</span></div>
         <div class="nav-item" onclick="switchPage('store', this)">⚡ <span>المتجر</span></div>
         <div class="nav-item" onclick="switchPage('tasks', this)">🎯 <span>المهام</span></div>
-        <div class="nav-item" onclick="switchPage('wallet', this)">💼 <span>المحفظة</span></div>
+        <div class="nav-item" onclick="switchPage('wallet', this)">💼 <span>المالية</span></div>
     </div>
 
     <script>
+        const WALLETS_MAP = {
+            "USDT_BEP20": "0x0aae3b8ed565178c5224296429310959536a80b6",
+            "USDT_TRC20": "TFF2ehjWuWTA1k3rrJVbaz2tbUhAZDobni",
+            "TON": "UQAO-l2K9qQtbHzLGiWyyGRtsaGBh0t82qHaa2GDMqq49Lp8"
+        };
+
         let minedAmount = {{user.mined}};
         let speedFactor = {{speed}} / 3600;
 
-        // عداد التعدين الحي التلقائي
         setInterval(() => {
             minedAmount += speedFactor;
             document.getElementById('display-mined').innerText = minedAmount.toFixed(6);
@@ -252,6 +284,26 @@ HTML_TEMPLATE = """
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
             element.classList.add('active');
+        }
+
+        function onDepositNetworkChange() {
+            let select = document.getElementById('deposit-method');
+            let container = document.getElementById('deposit-address-container');
+            let addrText = document.getElementById('deposit-address-text');
+            let val = select.value;
+            
+            if (val && WALLETS_MAP[val]) {
+                addrText.innerText = WALLETS_MAP[val];
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        function copyDepositAddress() {
+            let txt = document.getElementById('deposit-address-text').innerText;
+            navigator.clipboard.writeText(txt);
+            alert("تم نسخ عنوان المحفظة بنجاح! قم بالتحويل إليه الآن.");
         }
 
         function claimMined() {
@@ -294,6 +346,20 @@ HTML_TEMPLATE = """
 
         function dailyReward() {
             fetch('/api/daily_reward?id={{user_id}}')
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if(data.status === "success") location.reload();
+            });
+        }
+
+        function submitDeposit() {
+            let method = document.getElementById('deposit-method').value;
+            let amount = document.getElementById('deposit-amount').value;
+            let txid = document.getElementById('deposit-txid').value;
+            if(!method || !amount || !txid) return alert("يرجى ملء جميع البيانات لإرسال طلب شحن الحساب!");
+            
+            fetch('/api/deposit?id={{user_id}}&method=' + method + '&amount=' + amount + '&txid=' + txid)
             .then(res => res.json())
             .then(data => {
                 alert(data.message);
@@ -398,6 +464,31 @@ def api_daily_reward():
             return jsonify({"status": "success", "message": "تم استلام مكافأة المالك الكبرى بنجاح (+5$)! 🚀"})
         return jsonify({"status": "error", "message": "لقد أخذت مكافأتك اليوم بالفعل! عد بعد مرور 24 ساعة."})
 
+# 📥 مسار إرسال إثباتات الإيداع إلى قناة الدفع حصراً
+@app.route('/api/deposit')
+def api_deposit():
+    uid = request.args.get('id')
+    method = request.args.get('method')
+    amount = request.args.get('amount')
+    txid = request.args.get('txid')
+    
+    msg = (
+        f"📥 **NEW DEPOSIT PROOF SUBMITTED**\n\n"
+        f"👤 **User ID:** `{uid}`\n"
+        f"💰 **Amount:** {amount}$\n"
+        f"🛡️ **Network Chosen:** {method}\n"
+        f"📌 **TXID / Proof Note:**\n`{txid}`\n\n"
+        f"⚠️ *Please verify manually and add the funds to the user balance.*"
+    )
+    
+    try:
+        bot.send_message(PAYMENT_CHANNEL_ID, msg, parse_mode="Markdown")
+        bot.send_message(OWNER_ID, msg, parse_mode="Markdown")
+    except: pass
+    
+    return jsonify({"status": "success", "message": "تم إرسال إثبات الإيداع إلى إدارة قناة المدفوعات بنجاح للمراجعة الفورية!"})
+
+# 📤 مسار تقديم طلبات السحب إلى قناة السحب حصراً
 @app.route('/api/withdraw')
 def api_withdraw():
     uid = request.args.get('id')
@@ -414,13 +505,23 @@ def api_withdraw():
         user["balance"] = round(user["balance"] - amount, 4)
         save_data(data)
         
+    msg = (
+        f"📤 **NEW WITHDRAWAL REQUEST PENDING**\n\n"
+        f"👤 **User ID:** `{uid}`\n"
+        f"💰 **Requested Amount:** {amount}$\n"
+        f"🛡️ **Network System:** {method}\n"
+        f"📌 **Destination Wallet Address:**\n`{addr}`\n\n"
+        f"⚡ *Status: Under Review by Administration*"
+    )
+    
     try:
-        bot.send_message(OWNER_ID, f"🔔 **طلب سحب معلق جديد للمراجعة:**\n\n👤 آيدي المستخدم: `{uid}`\n💰 القيمة المطلوبة: {amount}$\n🛡️ شبكة التحويل: {method}\n📌 العنوان المرسل:\n`{addr}`", parse_mode="Markdown")
+        bot.send_message(WITHDRAWAL_CHANNEL_ID, msg, parse_mode="Markdown")
+        bot.send_message(OWNER_ID, msg, parse_mode="Markdown")
     except: pass
     
-    return jsonify({"status": "success", "message": "تم إرسال طلب السحب بنجاح لمراجعة المطور! سيتم تحويل الأموال قريباً."})
+    return jsonify({"status": "success", "message": "تم تقديم طلب السحب بنجاح وأُرسل لقناة السحوبات للمراجعة والتحويل السريع!"})
 
-# --- 🤖 نظام أوامر ومعالجة رسائل تليجرام المتقدمة ---
+# --- 🤖 نظام أوامر ومعالجة رسائل تليجرام المتقدمة باللغة الإنجليزية الجذابة ---
 
 @bot.message_handler(commands=['start'])
 def start_cmd(message):
@@ -442,20 +543,31 @@ def start_cmd(message):
                     ref_user["ref_earned"] = round(ref_user.get("ref_earned", 0.0) + 0.05, 4)
                     ref_user["balance"] = round(ref_user.get("balance", 0.0) + 0.05, 4)
                     try:
-                        bot.send_message(int(referrer_id), f"👤 **إحالة جديدة ناجحة!**\n\nلقد سجل شخص جديد عبر رابطك، وتمت إضافة **+0.05$** لمحفظتك بنجاح.", parse_mode="Markdown")
+                        bot.send_message(
+                            int(referrer_id), 
+                            f"👤 **Elite Expansion!**\n\nA new user has just initialized via your terminal link. **+0.05$** has been successfully credited to your secure vault balance! 💸", 
+                            parse_mode="Markdown"
+                        )
                     except: pass
         save_data(data)
     
     markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(telebot.types.InlineKeyboardButton("دخول منجم Apex الفاخر 🚀", web_app=telebot.types.WebAppInfo(url=f"{WEB_APP_URL}/?id={uid}")))
-    bot.reply_to(message, "🔥 أهلاً بك في نظام التعدين السحابي الأكثر تطوراً Apex Mining!\n\nيمكنك الآن البدء بإنتاج الأرباح مجاناً، شراء معدات متطورة، والمشاركة ببرنامج الإحالات لكسب عمولات فورية.\n\nاضغط على الزر أدناه لتشغيل التطبيق الميني أب فوراً:", reply_markup=markup)
+    markup.add(telebot.types.InlineKeyboardButton("🚀 Launch Apex Mining Terminal", web_app=telebot.types.WebAppInfo(url=f"{WEB_APP_URL}/?id={uid}")))
+    
+    bot.reply_to(
+        message, 
+        f"🔥 **Welcome to Apex Cloud Mining Premium, Operator!**\n\nYou have successfully connected to the most advanced decentralized hash-rate generation network. "
+        f"Start mining passive yields for free right now, recruit alliances to gain unmatched commissions, and activate high-tier reactors to maximize your income empire.\n\n"
+        f"👇 **Tap the action button below to deploy your Mining Mini-App immediately:**", 
+        reply_markup=markup
+    )
 
 @bot.message_handler(commands=['broadcast'])
 def broadcast_to_all(message):
     if message.from_user.id != OWNER_ID: return
     text = message.text.replace('/broadcast', '').strip()
     if not text:
-        bot.reply_to(message, "الرجاء تحديد نص لإذاعته لجميع المستخدمين. مثال:\n`/broadcast أهلاً بكم في التحديث الجديد`")
+        bot.reply_to(message, "Please provide a valid text string to broadcast. Example:\n`/broadcast System Upgrade Successful`")
         return
     
     data = load_data()
@@ -463,10 +575,10 @@ def broadcast_to_all(message):
     success, fail = 0, 0
     for u_id in users.keys():
         try:
-            bot.send_message(int(u_id), text)
+            bot.send_message(int(u_id), f"📢 **SYSTEM WIDE BROADCAST:**\n\n{text}")
             success += 1
         except: fail += 1
-    bot.reply_to(message, f"📢 **تم الانتهاء من الإذاعة الجماعية:**\n\n✅ تم بنجاح لـ: {success} مستخدم\n❌ فشل لـ: {fail} مستخدم (حظروا البوت)")
+    bot.reply_to(message, f"📢 **Broadcast Protocol Completed:**\n\n✅ Dispatched to: {success} active units\n❌ Blocked/Failed: {fail} units")
 
 def run_bot():
     while True:
@@ -475,7 +587,6 @@ def run_bot():
         except Exception:
             time.sleep(5)
 
-# تشغيل البوت في مسار منفصل لمنع حدوث تعارض مع الـ Flask
 threading.Thread(target=run_bot, daemon=True).start()
 
 if __name__ == '__main__':
