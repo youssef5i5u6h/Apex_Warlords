@@ -417,7 +417,7 @@ def deposit():
         return f"""
         <body style="background:#05070f; color:#fff; font-family:sans-serif; text-align:center; padding-top:80px;">
             <div style="background:rgba(20,28,47,0.6); backdrop-filter:blur(15px); max-width:480px; margin:0 auto; padding:40px; border-radius:24px; border:1px solid #ef4444; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-                <h2 style="color:#ef4444; font-weight:900; margin-bottom:15px;">❌ خطأ في إعدادات السيرفر والإرساال</h2>
+                <h2 style="color:#ef4444; font-weight:900; margin-bottom:15px;">❌ خطأ في إعدادات السيرفر والإرسال</h2>
                 <p style="color:#94a3b8; line-height:1.7; font-size:15px;">فشل السيرفر في إرسال إشعار الإيداع إلى القناة الإدارية الخاصة بك.</p>
                 <br>
                 <a href="javascript:history.back()" style="display:inline-block; background:#ef4444; color:#fff; text-decoration:none; padding:12px 25px; border-radius:12px; font-weight:bold;">العودة وتعديل القناة</a>
@@ -460,13 +460,11 @@ def withdraw():
 # --- 🔐 معالج أزرار القنوات المتطور والخالي من التعليق ---
 @bot.callback_query_handler(func=lambda call: True)
 def handle_admin_buttons(call):
-    # 1. فك تعليق زرار التليجرام فوراً وبشكل لحظي من السيرفر
     try:
         bot.answer_callback_query(call.id)
     except Exception:
         pass
         
-    # 2. التحقق الذكي من رتبة وصلاحية الشخص الضاغط على الزرار
     if call.from_user.id != OWNER_ID:
         try:
             bot.send_message(call.message.chat.id, f"⚠️ تنبيه حماية: الحساب الخاص بك ليس المالك المعين للبوت!\n👤 الـ ID الخاص بك: `{call.from_user.id}`\n\n💡 إذا كنت أنت المالك، انسخ هذا الرقم واستبدله بالـ `OWNER_ID` في سطر الكود رقم 9.")
@@ -518,13 +516,20 @@ def handle_admin_buttons(call):
         try: bot.send_message(call.message.chat.id, f"❌ حدث خطأ برمجي داخلي: {str(e)}")
         except Exception: pass
 
+# --- 🎯 رسالة الترحيب الأصلية والأولانية بالكامل ---
 @bot.message_handler(commands=['start'])
 def start(m):
     uid = str(m.from_user.id)
     url = f"https://apexwarlords-production.up.railway.app?id={uid}"
+    
     markup = telebot.types.InlineKeyboardMarkup()
     markup.add(telebot.types.InlineKeyboardButton("Launch Apex Mining 🚀", web_app=telebot.types.WebAppInfo(url=url)))
-    bot.send_message(m.chat.id, "🎯 Welcome to **Apex Mining Premium**!", reply_markup=markup, parse_mode="Markdown")
+    
+    welcome_text = (
+        "🎯 Welcome to **Apex Mining Premium**!\n\n"
+        "Tap the button below to launch the Mini App, purchase your mining rigs, and start generating live profits instantly."
+    )
+    bot.send_message(m.chat.id, welcome_text, reply_markup=markup, parse_mode="Markdown")
 
 # تشغيل الـ Polling الآمن في الخلفية
 threading.Thread(target=lambda: bot.infinity_polling(timeout=10, long_polling_timeout=5)).start()
