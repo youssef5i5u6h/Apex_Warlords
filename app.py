@@ -10,12 +10,12 @@ app = Flask(__name__)
 # --- 🔒 Threading Lock لمنع تداخل البيانات ---
 data_lock = threading.Lock()
 
-# --- ⚙️ الإعدادات الأساسية والنظام بالتوكن الجديد ---
+# --- ⚙️ الإعدادات الأساسية والنظام بالتوكن والرابط الفعليين ---
 TOKEN = "8895527275:AAFiM1ZbdyaTDuMs_zSXOGV6Lkyhqk_HdoY"
 OWNER_ID = 1609075265  
 
-# 🌐 قم بتغيير هذا الرابط إلى رابط موقعك الفعلي على ريلواي ليعمل نظام الإحالات والميني أب بدقة
-WEB_APP_URL = "https://your-app.up.railway.app" 
+# 🌐 رابط موقعك الفعلي والنهائي على ريلواي لعمل الإحالات بشكل حقيقي
+WEB_APP_URL = "https://Apexwarlords-production.up.railway.app" 
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -69,7 +69,7 @@ def save_data(data):
 def update_mining(user):
     now = time.time()
     last = user.get("last_calc", now)
-    total_speed = 0.0100  # السرعة المجانية الافتراضية لكل مستخدم جديد
+    total_speed = 0.0100  # السرعة المجانية الافتراضية
     if "miners" in user and isinstance(user["miners"], dict):
         for m_id, count in user["miners"].items():
             if m_id in MINER_TYPES:
@@ -475,7 +475,7 @@ def run_bot():
         except Exception:
             time.sleep(5)
 
-# تشغيل البوت في مسار منعزل تماماً لتجنب الـ Overlapping والـ Conflict الكارثي
+# تشغيل البوت في مسار منفصل لمنع حدوث تعارض مع الـ Flask
 threading.Thread(target=run_bot, daemon=True).start()
 
 if __name__ == '__main__':
