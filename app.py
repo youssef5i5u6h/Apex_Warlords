@@ -2,25 +2,25 @@ import os
 import json
 import time
 import threading
-import html  # لضمان عدم ضرب نصوص الـ HTML عند الإرسال للقنوات
+import html
 from flask import Flask, render_template_string, request, jsonify
 import telebot
 
 app = Flask(__name__)
 
-# --- 🔒 Threading Lock لمنع تداخل البيانات ---
+# --- 🔒 Threading Lock لحماية البيانات من التداخل ---
 data_lock = threading.Lock()
 
-# --- ⚙️ الإعدادات الأساسية والنظام بالتوكن والرابط الفعليين ---
+# --- ⚙️ الإعدادات والتوكنات الرسمية للمشروع ---
 TOKEN = "8895527275:AAFiM1ZbdyaTDuMs_zSXOGV6Lkyhqk_HdoY"
 OWNER_ID = 1609075265  
 
-# 🌐 رابط موقعك الفعلي والنهائي على ريلواي
+# 🌐 رابط السيرفر الفعلي والنهائي على منصة ريلواي
 WEB_APP_URL = "https://Apexwarlords-production.up.railway.app" 
 
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(TOKEN, threaded=False)
 
-# 📁 مسار الحفظ الآمن للبيانات
+# 📁 إدارة مسارات حفظ البيانات وضمان عدم ضياعها عند إعادة التشغيل
 DATA_DIR = '/app/data' if os.path.exists('/app/data') else '.'
 DATA_FILE = os.path.join(DATA_DIR, 'data.json')
 
@@ -28,12 +28,14 @@ PAYMENT_CHANNEL_ID = "@Apex_payment1"
 WITHDRAWAL_CHANNEL_ID = "@lil_10l"       
 NEWS_CHANNEL_LINK = "https://t.me/lS_3P"   
 
+# 💳 عناوين محافظ الإيداع الخاصة بك
 WALLETS = {
     "USDT_BEP20": "0x0aae3b8ed565178c5224296429310959536a80b6",
     "USDT_TRC20": "TFF2ehjWuWTA1k3rrJVbaz2tbUhAZDobni",
     "TON": "UQAO-l2K9qQtbHzLGiWyyGRtsaGBh0t82qHaa2GDMqq49Lp8"
 }
 
+# ⚡ قاعدة بيانات الأجهزة والترقيات المتاحة في المتجر
 MINER_TYPES = {
     "doge": {"name": "DOGE Miner", "cost": 0.5, "speed": 0.0120, "tier": "STARTER", "color": "#cbd5e1", "icon": "🛰️"},
     "wif": {"name": "WIF Turbine", "cost": 2.5, "speed": 0.0463, "tier": "COMMON", "color": "#22c55e", "icon": "⚙️"},
@@ -47,6 +49,7 @@ MINER_TYPES = {
     "mtonga": {"name": "MTONGA Reactor", "cost": 5000.0, "speed": 777.0000, "tier": "LEGENDARY", "color": "#ef4444", "icon": "👑"}
 }
 
+# 🎯 المهام المتاحة داخل التطبيق للمستخدمين كسب مكافآت منها
 TASKS = {
     "task1": {"title": "الانضمام لقناة الأخبار الرئيسية 📢", "reward": 0.10, "link": "https://t.me/lS_3P"},
     "task2": {"title": "الانضمام لقناة الإثباتات والسحب 🧾", "reward": 0.15, "link": "https://t.me/lil_10l"},
@@ -67,7 +70,7 @@ def save_data(data):
 def update_mining(user):
     now = time.time()
     last = user.get("last_calc", now)
-    total_speed = 0.0100  
+    total_speed = 0.0100  # السرعة الافتراضية المجانية لجميع المستخدمين
     if "miners" in user and isinstance(user["miners"], dict):
         for m_id, count in user["miners"].items():
             if m_id in MINER_TYPES:
@@ -77,7 +80,7 @@ def update_mining(user):
     user["last_calc"] = now
     return total_speed
 
-# --- 🚀 واجهة الويب الشاملة فائقة التطور ---
+# --- 🚀 واجهة الويب الشاملة والفخمة بالكامل (بدون أي اختصارات) ---
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -88,6 +91,7 @@ HTML_TEMPLATE = """
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #030712; color: #f8fafc; margin: 0; padding-bottom: 120px; overflow-x: hidden; background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #030712 70%); }
+        
         .top-bar { display: flex; flex-direction: column; align-items: center; padding: 18px 15px; background: rgba(17, 24, 39, 0.7); border-bottom: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(24px); position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
         .logo-area { font-size: 28px; font-weight: 900; background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; text-shadow: 0 0 25px rgba(56, 189, 248, 0.4); margin-bottom: 15px; }
         
@@ -126,7 +130,8 @@ HTML_TEMPLATE = """
         
         .claim-panel { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); width: 100%; padding: 25px; border-radius: 28px; text-align: center; box-shadow: 0 10px 35px rgba(29, 78, 216, 0.4); cursor: pointer; margin-bottom: 25px; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
         .grid-menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; }
-        .grid-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 18px; border-radius: 20px; text-align: center; cursor: pointer; font-weight: 700; transition: 0.2s; }
+        .grid-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 18px; border-radius: 20px; text-align: center; cursor: pointer; font-weight: 700; transition: 0.2s; border: 1px solid rgba(255,255,255,0.03); }
+        .grid-item:hover { background: rgba(255,255,255,0.06); }
         
         .section-card { background: linear-gradient(180deg, rgba(31,41,55,0.5) 0%, rgba(17,24,39,0.5) 100%); border: 1px solid rgba(255,255,255,0.07); border-radius: 26px; padding: 22px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         input, select { width: 100%; padding: 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; color: white; margin-top: 8px; margin-bottom: 18px; text-align: right; font-weight: 600; font-size: 15px; }
@@ -319,7 +324,7 @@ HTML_TEMPLATE = """
 
         function copyDepositAddress() {
             navigator.clipboard.writeText(document.getElementById('deposit-address-text').innerText);
-            alert("تم نسخ عنوان المحفظة! قم بالتحويل إليه الآن.");
+            alert("تم نسخ عنوان المحفظة للمراد تحويلها!");
         }
 
         function claimMined() {
@@ -359,7 +364,7 @@ HTML_TEMPLATE = """
             let method = document.getElementById('deposit-method').value;
             let amount = document.getElementById('deposit-amount').value;
             let txid = document.getElementById('deposit-txid').value;
-            if(!method || !amount || !txid) return alert("يرجى ملء جميع البيانات لإرسال طلب الشحن الحساب!");
+            if(!method || !amount || !txid) return alert("يرجى ملء جميع البيانات لإرسال طلب شحن الحساب!");
             fetch('/api/deposit?id={{user_id}}&method=' + method + '&amount=' + amount + '&txid=' + txid)
             .then(res => res.json()).then(data => {
                 alert(data.message); if(data.status === "success") location.reload();
@@ -381,12 +386,22 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# --- 🛰️ مسارات الخادم والـ API المتكاملة ---
+# --- 🛰️ مسار استقبال البيانات الفوري عبر الـ Webhook بدون تداخل ---
+@app.route(f'/{TOKEN}', methods=['POST'])
+def telegram_webhook():
+    if request.headers.get('content-type') == 'application/json':
+        json_string = request.get_data().decode('utf-8')
+        update = telebot.types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return ''
+    else:
+        return jsonify({"status": "error"}), 403
 
+# --- 🛰️ مسارات الـ API الخلفية للمشروع ---
 @app.route('/')
 def index():
     uid = request.args.get('id', '1609075265')
-    invite_url = f"https://t.me/{bot.get_me().username}?start=ref_{uid}"
+    invite_url = f"https://t.me/Apex_mining_bot?start=ref_{uid}"
     with data_lock:
         data = load_data()
         if uid not in data['users']:
@@ -458,7 +473,6 @@ def api_daily_reward():
             return jsonify({"status": "success", "message": "تم استلام المكافأة اليومية (+0.10$)!"})
         return jsonify({"status": "error", "message": "عد لاحقاً بعد انتهاء الـ 24 ساعة."})
 
-# 📥 إرسال إيداع مع أزرار التحكم التفاعلية
 @app.route('/api/deposit')
 def api_deposit():
     uid = request.args.get('id')
@@ -479,7 +493,6 @@ def api_deposit():
         f"📌 <b>Sender Info / Account:</b>\n<code>{safe_txid}</code>"
     )
     
-    # بناء أزرار القبول والرفض وتشفير البيانات بداخلها لربط الأكشن
     markup = telebot.types.InlineKeyboardMarkup()
     markup.row(
         telebot.types.InlineKeyboardButton("✅ Approve & Deposit", callback_data=f"dep_a_{safe_uid}_{safe_amount}"),
@@ -489,11 +502,10 @@ def api_deposit():
     try:
         bot.send_message(PAYMENT_CHANNEL_ID, msg, parse_mode="HTML", reply_markup=markup)
         bot.send_message(OWNER_ID, msg, parse_mode="HTML", reply_markup=markup)
-    except Exception as e: print(f"Error channel: {e}")
+    except Exception as e: print(f"Error channel deposit: {e}")
     
-    return jsonify({"status": "success", "message": "تم إرسال إثبات الإيداع بنجاح للمراجعة الفورية!"})
+    return jsonify({"status": "success", "message": "تم إرسال إثبات الإيداع بنجاح للمراجعة!"})
 
-# 📤 إرسال طلب سحب مع أزرار التحكم التفاعلية
 @app.route('/api/withdraw')
 def api_withdraw():
     uid = request.args.get('id')
@@ -522,7 +534,6 @@ def api_withdraw():
         f"📌 <b>Destination Wallet Address:</b>\n<code>{safe_addr}</code>"
     )
     
-    # بناء أزرار التحكم بطلب السحب الخاص بالمستخدم
     markup = telebot.types.InlineKeyboardMarkup()
     markup.row(
         telebot.types.InlineKeyboardButton("✅ Approve & Pay", callback_data=f"wit_a_{safe_uid}_{amount}"),
@@ -532,29 +543,26 @@ def api_withdraw():
     try:
         bot.send_message(WITHDRAWAL_CHANNEL_ID, msg, parse_mode="HTML", reply_markup=markup)
         bot.send_message(OWNER_ID, msg, parse_mode="HTML", reply_markup=markup)
-    except Exception as e: print(f"Error channel: {e}")
+    except Exception as e: print(f"Error channel withdraw: {e}")
     
-    return jsonify({"status": "success", "message": "تم تقديم طلب السحب بنجاح وأُرسل لقناة السحوبات!"})
+    return jsonify({"status": "success", "message": "تم تقديم طلب السحب بنجاح!"})
 
-# --- ⚙️ نظام التحكم التفاعلي وحماية الأزرار للمالك فقط ---
+# --- ⚙️ معالجة الأزرار التفاعلية وتأمين النقرات للمالك فقط ---
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_admin_buttons(call):
-    # 🔒 الحماية الصارمة: التحقق من أن الـ ID يطابق المالك الفخم فقط
+    # 🔒 الحماية الصارمة من الاختراق أو تطفل الأدمنز:
     if call.from_user.id != OWNER_ID:
-        bot.answer_callback_query(call.id, "⚠️ عذراً يا غالي! هذه الأزرار مخصصة لمالك البوت الفعلي فقط للتحقق من المعاملات المباشرة ولا تملك صلاحية النقر عليها.", show_alert=True)
+        bot.answer_callback_query(call.id, "⚠️ عذراً يا غالي! هذه الأزرار تظهر في القناة للجميع لكن الصلاحية الفعلية محجوزة لمالك البوت الأصلي فقط ولا يمكنك اتخاذ إجراء.", show_alert=True)
         return
 
-    # تفكيك البيانات المشفرة بداخل الزر المرسل لقنوات التليجرام
     parts = call.data.split('_')
-    if len(parts) < 4:
-        bot.answer_callback_query(call.id, "بيانات الإجراء تالفة أو غير صالحة.")
-        return
+    if len(parts) < 4: return
         
-    action_type = parts[0]  # dep أو wit
-    status = parts[1]       # a للقبول أو r للرفض
-    target_uid = parts[2]   # معرف تيليجرام الخاص بالمستخدم صاحب المعاملة
-    amount = float(parts[3])# قيمة المبلغ الرقمية
+    action_type = parts[0]
+    status = parts[1]
+    target_uid = parts[2]
+    amount = float(parts[3])
     
     status_msg = ""
     
@@ -567,37 +575,31 @@ def handle_admin_buttons(call):
                 if user:
                     user["balance"] = round(user.get("balance", 0.0) + amount, 4)
                     status_msg = f"\n\n🟢 <b>Status: APPROVED (+{amount}$ added to balance)</b>"
-                    try: bot.send_message(int(target_uid), f"🎉 تم تأكيد إيداعك بنجاح! تم إضافة {amount}$ إلى رصيد حسابك.")
+                    try: bot.send_message(int(target_uid), f"🎉 تم تأكيد إيداعك بنجاح! تم إضافة {amount}$ إلى حسابك.")
                     except: pass
-                else: status_msg = "\n\n❌ <b>Status: FAILED (User not found)</b>"
             else:
-                status_msg = f"\n\n🔴 <b>Status: REJECTED (Deposit Proof Denied)</b>"
-                try: bot.send_message(int(target_uid), f"❌ تم رفض إثبات الإيداع الخاص بك بقيمة {amount}$. إذا كنت تعتقد أن هناك خطأ يرجى مراسلة الدعم.")
+                status_msg = f"\n\n🔴 <b>Status: REJECTED (Proof Denied)</b>"
+                try: bot.send_message(int(target_uid), f"❌ تم رفض إثبات الإيداع الخاص بك بقيمة {amount}$.")
                 except: pass
                 
         elif action_type == "wit":
             if status == "a":
-                status_msg = f"\n\n🟢 <b>Status: APPROVED & PAID ({amount}$ Sent Successfully)</b>"
-                try: bot.send_message(int(target_uid), f"✅ تم معالجة طلب سحبك بقيمة {amount}$ بنجاح وإرسال الأموال إلى محفظتك!")
+                status_msg = f"\n\n🟢 <b>Status: APPROVED & PAID ({amount}$)</b>"
+                try: bot.send_message(int(target_uid), f"✅ تم معالجة طلب سحبك بقيمة {amount}$ بنجاح وتحويل الأموال!")
                 except: pass
             else:
-                if user:
-                    user["balance"] = round(user.get("balance", 0.0) + amount, 4)  # إرجاع المبلغ المخصوم للرصيد
-                status_msg = f"\n\n🔴 <b>Status: REJECTED & REFUNDED ({amount}$ returned to user balance)</b>"
-                try: bot.send_message(int(target_uid), f"❌ تم رفض طلب سحبك بقيمة {amount}$ وتم إعادة الأموال بالكامل إلى رصيد حسابك.")
+                if user: user["balance"] = round(user.get("balance", 0.0) + amount, 4)
+                status_msg = f"\n\n🔴 <b>Status: REJECTED & REFUNDED</b>"
+                try: bot.send_message(int(target_uid), f"❌ تم رفض طلب سحبك بقيمة {amount}$ وتم إعادة الأموال لرصيدك.")
                 except: pass
                 
         save_data(data)
 
-    # تحديث نص الرسالة الأساسية في القناة فوراً وحذف الأزرار لمنع الضغط المزدوج
     try:
         updated_text = call.message.text + status_msg
         bot.edit_message_text(updated_text, chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=None, parse_mode="HTML")
-        bot.answer_callback_query(call.id, "تم تحديث المعاملة بنجاح وإشعار المستخدم فورا!", show_alert=False)
-    except Exception as e:
-        print(f"Error editing text: {e}")
-
-# --- 🤖 نظام أوامر تليجرام وبدء التشغيل الآمن ---
+        bot.answer_callback_query(call.id, "تم تحديث المعاملة بنجاح وإشعار العميل!", show_alert=False)
+    except Exception as e: print(f"Error editing text response: {e}")
 
 @bot.message_handler(commands=['start'])
 def start_cmd(message):
@@ -614,7 +616,7 @@ def start_cmd(message):
                     ref_user["ref_count"] = ref_user.get("ref_count", 0) + 1
                     ref_user["ref_earned"] = round(ref_user.get("ref_earned", 0.0) + 0.10, 4)
                     ref_user["balance"] = round(ref_user.get("balance", 0.0) + 0.10, 4)
-                    try: bot.send_message(int(referrer_id), f"👤 <b>Elite Expansion!</b>\n\nNew terminal referral linked. <b>+0.10$</b> credited!", parse_mode="HTML")
+                    try: bot.send_message(int(referrer_id), f"👤 New referral linked. <b>+0.10$</b> credited!", parse_mode="HTML")
                     except: pass
         save_data(data)
     
@@ -622,17 +624,17 @@ def start_cmd(message):
     markup.add(telebot.types.InlineKeyboardButton("🚀 Launch Apex Mining Terminal", web_app=telebot.types.WebAppInfo(url=f"{WEB_APP_URL}/?id={uid}")))
     bot.reply_to(message, f"🔥 <b>Welcome to Apex Cloud Mining Premium!</b>\n\n👇 <b>Tap the action button to launch app:</b>", parse_mode="HTML", reply_markup=markup)
 
-def run_bot():
-    while True:
-        try:
-            # 🛡️ إزالة الويب هوك المعلق وتطهير الاتصالات القديمة لإنهاء مشكلة التداخل (Conflict 409)
-            bot.remove_webhook(drop_pending_updates=True)
-            time.sleep(1)
-            bot.infinity_polling(timeout=20, long_polling_timeout=15)
-        except Exception:
-            time.sleep(5)
+# --- ⚙️ إعداد وتنشيط الـ Webhook التلقائي الآمن ---
+def set_webhook():
+    time.sleep(3)
+    try:
+        bot.remove_webhook()
+        bot.set_webhook(url=f"{WEB_APP_URL}/{TOKEN}")
+        print("✅ Telegram Webhook set successfully!")
+    except Exception as e:
+        print(f"❌ Webhook configuration failed: {e}")
 
-threading.Thread(target=run_bot, daemon=True).start()
+threading.Thread(target=set_webhook, daemon=True).start()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
