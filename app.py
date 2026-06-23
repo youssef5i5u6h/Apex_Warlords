@@ -28,6 +28,57 @@ PAYMENT_CHANNEL_ID = "@Apex_payment1"
 WITHDRAWAL_CHANNEL_ID = "@lil_10l"       
 NEWS_CHANNEL_LINK = "https://t.me/FasterPay_Official"   
 
+# 1️⃣ إعدادات البوت والقناة الم
+REQUIRED_CHANNEL = "@FasterPay_Official"       # يوزر قناتك (لازم البوت يكون أدمن فيها)
+NEWS_CHANNEL_LINK = "https://t.me/FasterPay_Official"  # رابط القناة اللي هيظهر للمستخدم
+
+
+# 2️⃣ دالة الفحص والتحقق من رتبة المستخدم في القناة
+def is_user_subscribed(user_id):
+    try:
+        member = bot.get_chat_member(REQUIRED_CHANNEL, user_id)
+        if member.status in ['member', 'administrator', 'creator']:
+            return True
+        return False
+    except Exception:
+        # لو البوت مش أدمن أو حصل خطأ بيخليه يمرر مؤقتاً عشان البوت ميهنجش
+        return False
+
+
+# 3️⃣ أمر /start مدمج فيه فحص الاشتراك الإجباري
+@bot.message_handler(commands=['start'])
+def start_cmd(message):
+    uid = str(message.from_user.id)
+    
+    # 📢 الفحص: لو طلع مش مشترك.. هيوقف الكود هنا ويبعت الزراير ويخرج بـ return
+    if not is_user_subscribed(message.from_user.id):
+        markup = telebot.types.InlineKeyboardMarkup()
+        markup.add(telebot.types.InlineKeyboardButton("📢 انضم للقناة من هنا", url=NEWS_CHANNEL_LINK))
+        markup.add(telebot.types.InlineKeyboardButton("🔄 تحقق من الانضمام", callback_data=f"check_sub_{uid}"))
+        
+        bot.reply_to(message, "⚠️ <b>عذراً يا غالي! يجب عليك الانضمام إلى القناة أولاً لتتمكن من استخدام البوت.</b>\n\nبعد الانضمام اضغط على زر التحقق بالأسفل 👇", parse_mode="HTML", reply_markup=markup)
+        return  # للخروج ومنع تكملة بقية الكود الأساسي لبوتك
+
+    # ⏬ (كود بوتك الأساسي) بيبدأ من هنا للأشخاص المشتركين فعلياً ⏬
+    bot.reply_to(message, "🔥 أهلاً بك يا غالي! تم التحقق من اشتراكك بنجاح وجاري تشغيل البوت...")
+
+
+# 4️⃣ معالج ضغطة زرار "التحقق" (Callback Query)
+@bot.callback_query_handler(func=lambda call: call.data.startswith("check_sub_"))
+def check_subscription_callback(call):
+    if is_user_subscribed(call.from_user.id):
+        bot.answer_callback_query(call.id, "🎉 ممتاز! تم التحقق من اشتراكك بنجاح. أرسل الآن /start مجدداً لتشغيل البوت.", show_alert=True)
+        try:
+            bot.delete_message(call.message.chat.id, call.message.message_id) # حذف رسالة التنبيه بالاشتراك
+        except:
+            pass
+    else:
+        bot.answer_callback_query(call.id, "❌ لسه مشتركتش يا غالي، اتأكد من الانضمام للقناة أولاً ثم اضغط تحقق!", show_alert=True)
+
+# لتشغيل البوت (لو بتشغله بالطريقة العادية)
+# bot.infinity_polling()
+
+
 # 💳 عناوين محافظ الإيداع الخاصة بك
 WALLETS = {
     "USDT_BEP20": "0x0aae3b8ed565178c5224296429310959536a80b6",
