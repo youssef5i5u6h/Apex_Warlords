@@ -32,47 +32,68 @@ NEWS_CHANNEL_LINK = "https://t.me/FasterPay_Official"
 REQUIRED_CHANNEL = "@FasterPay_Official"       # يوزر قناتك (لازم البوت يكون أدمن فيها)
 NEWS_CHANNEL_LINK = "https://t.me/FasterPay_Official"  # رابط القناة اللي هيظهر للمستخدم
 
-
-# 2️⃣ دالة الفحص والتحقق من رتبة المستخدم في القناة
+# 2️⃣ Subscription Check Function
 def is_user_subscribed(user_id):
     try:
         member = bot.get_chat_member(REQUIRED_CHANNEL, user_id)
-        if member.status in ['member', 'administrator', 'creator']:
-            return True
-        return False
-    except Exception:
-        # لو البوت مش أدمن أو حصل خطأ بيخليه يمرر مؤقتاً عشان البوت ميهنجش
+        return member.status in ['member', 'administrator', 'creator']
+    except:
         return False
 
 
-# 3️⃣ أمر /start مدمج فيه فحص الاشتراك الإجباري
+# 3️⃣ Start Command Handler
 @bot.message_handler(commands=['start'])
 def start_cmd(message):
     uid = str(message.from_user.id)
     
-    # 📢 الفحص: لو طلع مش مشترك.. هيوقف الكود هنا ويبعت الزراير ويخرج بـ return
+    # [Case 1] User is NOT subscribed: Shows join buttons and stops execution
     if not is_user_subscribed(message.from_user.id):
         markup = telebot.types.InlineKeyboardMarkup()
-        markup.add(telebot.types.InlineKeyboardButton("📢 انضم للقناة من هنا", url=NEWS_CHANNEL_LINK))
-        markup.add(telebot.types.InlineKeyboardButton("🔄 تحقق من الانضمام", callback_data=f"check_sub_{uid}"))
+        markup.add(telebot.types.InlineKeyboardButton("📢 Join Channel", url=NEWS_CHANNEL_LINK))
+        markup.add(telebot.types.InlineKeyboardButton("🔄 Verify", callback_data=f"check_sub_{uid}"))
         
-        bot.reply_to(message, "⚠️ <b>عذراً يا غالي! يجب عليك الانضمام إلى القناة أولاً لتتمكن من استخدام البوت.</b>\n\nبعد الانضمام اضغط على زر التحقق بالأسفل 👇", parse_mode="HTML", reply_markup=markup)
-        return  # للخروج ومنع تكملة بقية الكود الأساسي لبوتك
+        bot.reply_to(
+            message, 
+            "⚠️ <b>You must join our official channel first to use this bot.</b>\n\nAfter joining, tap the 'Verify' button below 👇", 
+            parse_mode="HTML", 
+            reply_markup=markup
+        )
+        return
 
-    # ⏬ (كود بوتك الأساسي) بيبدأ من هنا للأشخاص المشتركين فعلياً ⏬
+    # [Case 2] User IS subscribed: Shows the clean welcome message and Mini App button
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(telebot.types.InlineKeyboardButton("🚀 Launch Mini App", web_app=telebot.types.WebAppInfo(url=f"{WEB_APP_URL}/?id={uid}")))
+    
+    bot.reply_to(
+        message, 
+        "🔥 <b>Welcome to the official bot!</b>\n\nTap the button below to launch the application 👇", 
+        parse_mode="HTML", 
+        reply_markup=markup
+    )
 
 
-# 4️⃣ معالج ضغطة زرار "التحقق" (Callback Query)
+# 4️⃣ Callback Query Handler (Verify Button Click)
 @bot.callback_query_handler(func=lambda call: call.data.startswith("check_sub_"))
 def check_subscription_callback(call):
     if is_user_subscribed(call.from_user.id):
-        bot.answer_callback_query(call.id, "🎉 ممتاز! تم التحقق من اشتراكك بنجاح. أرسل الآن /start مجدداً لتشغيل البوت.", show_alert=True)
-        try:
-            bot.delete_message(call.message.chat.id, call.message.message_id) # حذف رسالة التنبيه بالاشتراك
-        except:
+        # Alert shown when verification succeeds, then deletes the old join message
+        bot.answer_callback_query(
+            call.id, 
+            "🎉 Subscription verified successfully! Send /start to use the bot.", 
+            show_alert=True
+        )
+        try: 
+            bot.delete_message(call.message.chat.id, call.message.message_id)
+        except: 
             pass
     else:
-        bot.answer_callback_query(call.id, "❌ لسه مشتركتش يا غالي، اتأكد من الانضمام للقناة أولاً ثم اضغط تحقق!", show_alert=True)
+        # Alert shown if the user didn't join yet
+        bot.answer_callback_query(
+            call.id, 
+            "❌ You haven't joined the channel yet! Please join and try again.", 
+            show_alert=True
+        )
+
 
 # لتشغيل البوت (لو بتشغله بالطريقة العادية)
 # bot.infinity_polling()
