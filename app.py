@@ -26,7 +26,7 @@ DATA_FILE = os.path.join(DATA_DIR, 'data.json')
 
 PAYMENT_CHANNEL_ID = "@Apex_payment1"     
 WITHDRAWAL_CHANNEL_ID = "@lil_10l"       
-NEWS_CHANNEL_LINK = "https://t.me/lS_3P"   
+NEWS_CHANNEL_LINK = "https://t.me/FasterPay_Official"   
 
 # 💳 عناوين محافظ الإيداع الخاصة بك
 WALLETS = {
