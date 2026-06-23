@@ -60,7 +60,6 @@ def start_cmd(message):
         return  # للخروج ومنع تكملة بقية الكود الأساسي لبوتك
 
     # ⏬ (كود بوتك الأساسي) بيبدأ من هنا للأشخاص المشتركين فعلياً ⏬
-    bot.reply_to(message, "🔥 Your subscription has been verified. Press /start to use the bot....")
 
 
 # 4️⃣ معالج ضغطة زرار "التحقق" (Callback Query)
